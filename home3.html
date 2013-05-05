@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<meta charset="UTF-8" />
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+		<script type="text/javascript" src="js/canvasLib.js"></script>
+		<script type="text/javascript" src="js/VMLLib.js"></script>
+		<script type="text/javascript" src="js/SVGLib.js"></script>
+		<script type="text/javascript" src="js/scaleLib.js"></script>
+		<script type="text/javascript" src="js/graph.js"></script>
+		<link rel="stylesheet" href="./styles/style.css"/>
+		<title>MNS JavaScript Graph Library Drawing tests</title>
+	</head>
+	<body>
+
+		<div id="main">
+			<header>MNS JavaScript Graph Library SVG Drawing tests</header>
+			<section class="mainSection">
+                <div id="graph0" style="width:1000px;height:500px;display:block;"></div>
+			</section>
+		</div> 
+
+		<script type="text/javascript" >
+		(function($){
+			$(document).ready( function(){
+			  	//var canvas=GraphicsFactory.createObject('graph0','canvas');
+			  	var canvas=GraphicsFactory.createObject('graph0','svg');
+			  	var f1=function(){
+			  	//test chaining aswell
+			  		canvas.clear('white')
+                    .color('red','white','white')
+				  	.setFillColor('blue')
+				  	.circle(61,61,50)
+                    .fillCircle(170,61,50)
+				  	.ellipse(300,61,70,50).fillEllipse(450,61,70,50)
+				  	.rect(530,10,100,100).fillRect(650,10,100,100);
+				  	//canvas.setDirection(false);
+                    canvas.plot(810,61);
+				  	canvas.arc(810,61,50,0,Math.PI);
+                    //.fillArc(930,61,50,0,3*Math.PI/2);
+				  	canvas.setLineWidth(5).setShadowWidth(5)
+				  	.plot(61,150)
+				  	.plotArray([80,150,91,161,102,172])
+				  	.line(130,150,180,170)
+					.setLineWidth(1).setShadowWidth(1)
+					.polygon([230,150,270,200,170,200])
+					.fillPoly([350,150,400,200,300,200])
+					.polyline([460,150,510,200,410,200])
+			  	};
+			  	var f2=function(){
+				  	//canvas.setShadows(3,3,'black');
+				  	f1();
+				  	//setTimeout(f3,5000);
+			  	};
+			  	var f3=function(){
+				  	//canvas.clearShadows();
+				  	f1();
+				  	//setTimeout(f2,5000);
+			  	};
+			  	f2();
+			  	
+		  	});
+		})(jQuery);
+		</script>
+	</body>
+</html>
+
