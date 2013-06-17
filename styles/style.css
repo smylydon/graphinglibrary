@@ -63,3 +63,12 @@ html body{
 	background-color:white;
 }
 
+.newGraphLabel{
+	position:absolute;
+	z-index: 10;
+	color:black;
+	visibilty : visible;
+	display : block;
+	top : -500px;
+	left : -500px;
+}
