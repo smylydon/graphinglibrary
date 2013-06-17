@@ -28,7 +28,7 @@ function scaleObject(){
 	
 	/**
 	*	Given a number it computes the log to the base 10 of that number.
-	*	The log function Math.log returns Naperian/natural logs; so the
+	*	The log function Math.log returns Naperian or natural logs; so the
 	*	result must be multiplied by ln 10 to convert to base 10 logs.
 	*
 	*	@private
@@ -43,19 +43,9 @@ function scaleObject(){
 	*	@private
 	*/		
 	function calculateScale(max,min){
-		var p1=0;
-		var p2=0;
-		var p3=0;
-		var p4=0;
-		var p5=0;
-
-		var s1=0;
-		var s2=0;
-		var s3=0;
-		var s4=0;
-		
-		var length=0;
-		var scaler=0;
+		var p1=0, p2=0, p3=0, p4=0, p5=0;
+		var s1=0, s2=0, s3=0, s4=0;
+		var length=0, scaler=0;
 		
 		//start at origin
 		if(min>0){
@@ -115,12 +105,8 @@ function scaleObject(){
 	*	@param {number} min it the smallest coordinate
 	*/			
 	this.makeScale=function(max,min){
-		var scaler=0;
-		var scalemin=0;
-		var notDone=true;
-		var count=0;
-		var length=0;
-		var value=0;
+		var scaler=0, scalemin=0, notDone=true;
+		var count=0, length=0,value=0;
 		
 		scaler=calculateScale(max,min); /*get delta (the tick width)*/
 

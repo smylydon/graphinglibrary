@@ -1,8 +1,14 @@
 function GraphObject(aCanvasName) {
     var canvas = null;
-    var dataColors = []; //default colours
-    var dataLines = []; //stroke colour order
-    var dataFill = []; //fill colour order
+    var dataColors = [
+        '#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff',
+        '#ff3333', '#33ff33', '#3333ff', '#ffff33', '#ff33ff', '#33ffff',
+        '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff',
+        '#cc0000', '#00cc00', '#0000cc', '#cccc00', '#cc00cc', '#00cccc',
+        '#990000', '#009900', '#000099', '#999900', '#990099', '#009999',
+        '#330000', '#003300', '#000033', '#333300', '#330033', '#003333']; //default colours
+    var dataLines = [12, 13, 14, 15, 16, 17]; //stroke colour order
+    var dataFill = [6, 7, 8, 9, 10, 11, 12]; //fill colour order
     var dataXaxis = null; //x values
     var dataYaxis = null; //y values
     var dataLabels = null; //labels
@@ -40,16 +46,6 @@ function GraphObject(aCanvasName) {
     var titleObject = [];
     var legendObject = [];
 
-    dataLines = [12, 13, 14, 15, 16, 17];
-    dataFill = [6, 7, 8, 9, 10, 11, 12];
-
-    dataColors = [
-        '#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff',
-        '#ff3333', '#33ff33', '#3333ff', '#ffff33', '#ff33ff', '#33ffff',
-        '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff',
-        '#cc0000', '#00cc00', '#0000cc', '#cccc00', '#cc00cc', '#00cccc',
-        '#990000', '#009900', '#000099', '#999900', '#990099', '#009999',
-        '#330000', '#003300', '#000033', '#333300', '#330033', '#003333'];
     scaley.noFlip = false;
     scalex.paddingAlpha = paddingXAlpha;
     scalex.paddingBeta = paddingXBeta;
@@ -228,12 +224,8 @@ function GraphObject(aCanvasName) {
     };
 
     function test() {
-        var i = 0;
-        var j = 0;
-        var w = 28;
-        var c = 0;
-        var k = 32 * 6;
-        var l = 0;
+        var i = 0, j = 0, w = 28, c = 0;
+        var k = 32 * 6, l = 0;
         gfx.clearShadows();
         for (j = 0; j < 6; j++) {
             for (i = 0; i < k; i += 32) {
@@ -247,9 +239,7 @@ function GraphObject(aCanvasName) {
     }
 
     this.execute = function (parameters) {
-        var plotMode = true;
-        var areaMode = false;
-        var axisMode = true;
+        var plotMode = true, areaMode = false, axisMode = true;
 
         if (parameters.length <= 0) {
             alert('Bad parameters list!!!!');
@@ -702,15 +692,10 @@ function GraphObject(aCanvasName) {
     }
 
     function showChords(points) {
-        var x = 0;
-        var y = 0;
-        var i = 0;
-        var radius = chordSettings[1];
-        var length = points.length - (points.length % 2);
-        var type = chordSettings[0];
-        var color = gfx.getColor();
+        var x = 0, y = 0, i = 0, radius = chordSettings[1];
+        var type = chordSettings[0], color = gfx.getColor();
         var filler = 5;
-
+        var length = points.length - (points.length % 2);
         gfx.save();
         gfx.color(color);
 
@@ -766,22 +751,16 @@ function GraphObject(aCanvasName) {
     };
 
     function barGraphVertical(parameters) {
-        var length1 = 0;
-        var length2 = 0;
+        var length1 = 0, length2 = 0;
         var width = 0;
-        var barHeight = 0;
-        var barWidth = 0;
-        var baseX = 0;
-        var barSpacing = 0;
+        var barHeight = 0, barWidth = 0;
+        var baseX = 0, barSpacing = 0;
         var groups = dataYaxis.length; //number of results
         var count = dataYaxis.mgGetMaxElements(); //max elements
         var dataBars = [];
         var ymax = dataYaxis.mgGetMax2D(); //heighest point
         var ymin = dataYaxis.mgGetMin2D(); //lowest point
-        var x1;
-        var x2;
-        var y1 = 0;
-        var y2 = 0;
+        var x1, x2, y1 = 0, y2 = 0;
         var i, j;
         var data1;
         var groupOn = parameters[1];
@@ -849,22 +828,15 @@ function GraphObject(aCanvasName) {
     }
 
     function barGraphHorizontal(parameters) {
-        var length1 = 0;
-        var length2 = 0;
-        var width = 0;
-        var barHeight = 0;
-        var barWidth = 0;
-        var baseY = 0;
-        var barSpacing = 0;
+        var length1 = 0, length2 = 0;
+        var width = 0, barHeight = 0, barWidth = 0;
+        var baseY = 0, barSpacing = 0;
         var groups = dataYaxis.length;
         var count = dataYaxis.mgGetMaxElements();
         var dataBars = [];
         var xmax = dataYaxis.mgGetMax2D();
         var xmin = dataYaxis.mgGetMin2D();
-        var y1;
-        var y2;
-        var x1 = 0;
-        var x2 = 0;
+        var y1, y2, x1 = 0, x2 = 0;
         var i, j;
         var data1;
         var groupOn = parameters[1];
@@ -931,24 +903,15 @@ function GraphObject(aCanvasName) {
     }
 
     function lineGraph(plotPolyMode, areaMode) {
-        var length = 0;
-        var length2 = 0;
-        var length3 = 0;
+        var length = 0, length2 = 0, length3 = 0;
         var xmax = dataXaxis.mgGetMax2D();
         var xmin = dataXaxis.mgGetMin2D();
         var ymax = dataYaxis.mgGetMax2D();
         var ymin = dataYaxis.mgGetMin2D();
-        var scale1 = 0;
-        var scale2 = 0;
-        var dataLine = [];
-        var dataPoly = [];
-        var data1 = [];
-        var data2 = [];
-        var x = 0;
-        var y = 0;
-        var i = 0;
-        var j = 0;
-        var color = 0;
+        var scale1 = 0, scale2 = 0;
+        var dataLine = [], dataPoly = [];
+        var data1 = [], data2 = [];
+        var x = 0, y = 0, i = 0, j = 0, color = 0;
 
         length2 = dataXaxis.length;
 
@@ -1014,8 +977,7 @@ function GraphObject(aCanvasName) {
         var length = data.length;
         var total = 0;
         var startAngle = 0.75 * PI2;
-        var angle1 = startAngle;
-        var angle2 = startAngle;
+        var angle1 = startAngle, angle2 = startAngle;
 
         if (length <= 2) {
             return;

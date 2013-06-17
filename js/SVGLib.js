@@ -16,7 +16,8 @@ function SVGObject() {
     var height = 0;
     var mode = 'radian'; // radian or degrees
     var direction = true;
-    var PI2 = 2 * Math.PI;
+	var PI2 = 2 * Math.PI;
+	var PI180 = Math.PI/180;
     var debug = true;
     var shadows = true;
     var globalAlpha = 1;
@@ -51,9 +52,7 @@ function SVGObject() {
             canvasY = 0;
         }
 
-        var cleft = 0;
-        var ctop = 0;
-        var obj = canvasholder;
+        var cleft = 0, ctop = 0, obj = canvasholder;
         cleft = parseInt((obj.style.marginLeft).replace('px', ''), 10);
         ctop = parseInt((obj.style.marginTop).replace('px', ''), 10);
         while (obj != document) {
@@ -240,14 +239,11 @@ function SVGObject() {
     };
 
     this.plotArray = function (points) {
-        var length = 0;
-        var x = 0;
-        var y = 0;
-        var i = 0;
+        var x = 0, y = 0, i = 0;
         var aWidth = lineDrawWidth;
         var bWidth = shadowWidth;
 
-        length = points.length;
+        var length = points.length;
 
         if (length >= 2) {
             for (i = 0; i < length; i = i + 2) {
@@ -304,15 +300,10 @@ function SVGObject() {
         */
     function convert_to_svg(cx, cy, rx, ry, theta1, delta, phi) {
         var theta2 = delta + theta1;
-        var cos = Math.cos;
-        var sin = Math.sin;
-        var cos_phi = cos(phi);
-        var sin_phi = sin(phi);
-        var sin_mphi = sin(-phi);
-        var cos_theta1 = cos(theta1);
-        var sin_theta1 = sin(theta1);
-        var cos_theta2 = cos(theta2);
-        var sin_theta2 = sin(theta2);
+        var cos = Math.cos, sin = Math.sin;
+        var cos_phi = cos(phi), sin_phi = sin(phi), sin_mphi = sin(-phi);
+        var cos_theta1 = cos(theta1), sin_theta1 = sin(theta1);
+        var cos_theta2 = cos(theta2), sin_theta2 = sin(theta2);
 
         var x0 = cx + cos_phi * rx * cos_theta1 + sin_mphi * ry * sin_theta1;
         var y0 = cy + sin_phi * rx * cos_theta1 + cos_phi * ry * sin_theta1;
@@ -366,8 +357,7 @@ function SVGObject() {
     }
 
     function circles(cx, cy, radius, fill) {
-        var aCircle = null;
-        var aCircleStyle = null;
+        var aCircle = null, aCircleStyle = null;
 
         if (shadows === true) {
             aCircle = makeAShadow('circle', fill);
@@ -445,13 +435,8 @@ function SVGObject() {
     };
 
     function polygons(name, points, fill) {
-        var aPoly = null;
-        var length = points.length;
-        var i = 0;
-        var mypoints1 = '';
-        var mypoints2 = '';
-        var x = 0;
-        var y = 0;
+        var aPoly = null, mypoints1 = '', mypoints2 = '';
+        var x = 0, y = 0, i=0, length = points.length ;
         for (i = 0; i < length; i += 2) {
             x = points[i];
             y = points[i + 1];

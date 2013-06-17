@@ -50,9 +50,7 @@ function VMLObject() {
             canvasY = 0;
         }
         //alert(canvasX+"--"+canvasY);
-        var cleft = 0;
-        var ctop = 0;
-        var obj = canvas;
+        var cleft = 0, ctop = 0, obj = canvas;
         cleft = parseInt((obj.style.marginLeft).replace('px', ''), 10);
         ctop = parseInt((obj.style.marginTop).replace('px', ''), 10);
         while (obj != document) {
