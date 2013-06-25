@@ -13,7 +13,9 @@ function GraphObject(aCanvasName) {
     var dataYaxis = null; //y values
     var dataLabels = null; //labels
     var gfx = null; //pointer to graphics library
+    var chordGFx = null;
     var gridGfx = null;
+    var axesGfx = null;
     var Ox = 0; //x origin
     var Oy = 0; //y origin
     var mx = 0; //minimum x
@@ -27,10 +29,7 @@ function GraphObject(aCanvasName) {
     var plotPolyMode = false; //line or dot plot
 
     var chordSettings = [1, 5, false, false]; //chord/node style
-    var chordsOn = true;
-    var gridOn = true; //grid lines on/off
-    var gridXOn = true;
-    var gridYOn = true;
+
     var gridX = [];
     var gridY = [];
     var groupOn = true;
@@ -51,14 +50,23 @@ function GraphObject(aCanvasName) {
     scalex.paddingBeta = paddingXBeta;
     scaley.paddingAlpha = paddingYAlpha;
     scaley.paddingBeta = paddingYBeta;
-    gfx = GraphicsFactory.createObject(aCanvasName, 'canvas');
-    if (gfx !== null) {
-        gfx.clearDebug();
-        scalex.fullLength = gfx.getWidth();
-        scaley.fullLength = gfx.getHeight();
-        gridGfx = GraphicsFactory.createObject(aCanvasName, 'canvas');
+
+    gridGfx = GraphicsFactory.createObject(aCanvasName, 'svg');
+
+    if (gridGfx !== null) {
         gridGfx.setCanvasId(aCanvasName + 'gridcanvas');
 
+        gfx = GraphicsFactory.createObject(aCanvasName, 'svg');
+        gfx.clearDebug();
+
+        scalex.fullLength = gfx.getWidth();
+        scaley.fullLength = gfx.getHeight();
+
+        chordGFx = GraphicsFactory.createObject(aCanvasName, 'svg');
+        chordGFx.setCanvasId(aCanvasName + 'chordcanvas');
+        
+        axesGfx = GraphicsFactory.createObject(aCanvasName, 'svg');
+        axesGfx.setCanvasId(aCanvasName + 'axescanvas');
     } else {
         alert('Error : Unable to create canvas object.');
     }
@@ -80,33 +88,23 @@ function GraphObject(aCanvasName) {
         return (this);
     };
 
-    function gridHelper(length, value) {
-        if (length === 0) {
-            gridOn = value;
-        } else {
-            gridOn = true;
-            var s = arguments[0];
-            if (/x/ig.test(s)) {
-                gridXOn = value;
-            }
-            if (/y/ig.test(s)) {
-                gridYOn = value;
-            }
-        }
-    }
-
     this.turnGridOn = function () {
-        gridHelper(arguments.length, true);
+        gridGfx.show();
         return (this);
     };
 
     this.turnGridOff = function () {
-        gridHelper(arguments.length, false);
+        gridGfx.show();
         return (this);
     };
 
     this.turnChordsOn = function () {
-        chordsOn = true;
+        chordGFx.show();
+        return (this);
+    };
+
+    this.turnChordsOff = function () {
+        chordGFx.hide();
         return (this);
     };
 
@@ -125,10 +123,6 @@ function GraphObject(aCanvasName) {
         return (this);
     };
 
-    this.turnChordsOff = function () {
-        chordsOn = false;
-        return (this);
-    };
 
     this.setCustomAxis = function (custom, step, start, finish) {
         step = Math.floor(step * factor);
@@ -361,37 +355,37 @@ function GraphObject(aCanvasName) {
             }
         }
 
-        if (gridOn === true) {
-            gridGfx.color(dataColors[gridColor]);
-            gridGfx.clearShadows();
-            gridGfx.save();
-            gridGfx.setLineWidth(1);
-            gridGfx.setAlpha(0.35);
-            gridGfx.line(mx, my, Mx, my);
-            gridGfx.line(mx, my, mx, My);
+        gridGfx.color(dataColors[gridColor]);
+        gridGfx.clearShadows();
+        gridGfx.save();
+        gridGfx.setLineWidth(1);
+        gridGfx.setAlpha(0.35);
+        
+        gridGfx.line(mx, my, Mx, my);
+        gridGfx.line(mx, my, mx, My);
 
-            gridGfx.line(mx, My, Mx, My);
-            gridGfx.line(Mx, my, Mx, My);
+        gridGfx.line(mx, My, Mx, My);
+        gridGfx.line(Mx, my, Mx, My);
+        
 
-            if (gridXOn === true) {
-                countend = gridX.length;
-                for (loopcount = 0; loopcount < countend; loopcount++) {
-                    dd = gridX[loopcount];
-                    gridGfx.line(dd, my, dd, My);
-                }
+       // if (gridXOn === true) {
+            countend = gridX.length;
+            for (loopcount = 0; loopcount < countend; loopcount++) {
+                dd = gridX[loopcount];
+                gridGfx.line(dd, my, dd, My);
             }
+       // }
 
-            if (gridYOn === true) {
-                countend = gridY.length;
-                for (loopcount = 0; loopcount < countend; loopcount++) {
-                    dd = gridY[loopcount];
-                    gridGfx.line(mx, dd, Mx, dd);
-                }
+        //if (gridYOn === true) {
+            countend = gridY.length;
+            for (loopcount = 0; loopcount < countend; loopcount++) {
+                dd = gridY[loopcount];
+                gridGfx.line(mx, dd, Mx, dd);
             }
-            gridGfx.restore();
-            if (shadows === true) {
-                gridGfx.setShadows();
-            }
+       // }
+        gridGfx.restore();
+        if (shadows === true) {
+            gridGfx.setShadows();
         }
     }
 
@@ -469,7 +463,6 @@ function GraphObject(aCanvasName) {
             }
         }
 
-        if (gridOn === true) {
             gridGfx.color(dataColors[gridColor]);
             gridGfx.save();
             gridGfx.clearShadows();
@@ -482,49 +475,43 @@ function GraphObject(aCanvasName) {
             gridGfx.line(Mx, my, Mx, My);
 
             countend = gridX.length;
-            if (gridXOn === true) {
+            //if (gridXOn === true) {
                 for (loopcount = 0; loopcount < countend; loopcount++) {
                     dd = gridX[loopcount];
                     gridGfx.line(dd, my, dd, My);
                 }
-            }
+           // }
 
             countend = gridY.length;
-            if (gridYOn === true) {
+            //if (gridYOn === true) {
                 for (loopcount = 0; loopcount < countend; loopcount++) {
                     dd = gridY[loopcount];
                     gridGfx.line(mx, dd, Mx, dd);
                 }
-            }
+            //}
             gridGfx.restore();
-        }
     }
-
+    /**
+    *   Draws the x and y axes.
+    */
     function drawAxis(demark) {
         var loopcount = 0;
-        var dd = 0;
-        var delta = 0;
-        var base = 0;
-        var count = 0;
-        var countstart = 0;
-        var countend = 0;
-        var scale = 0;
-        var scaleMin = 0;
-        var scaleDelta = 0;
+        var dd = 0, delta = 0, base = 0;
+        var count = 0, countstart = 0, countend = 0;
+        var scale = 0, scaleMin = 0, scaleDelta = 0;
         var multiplier = factor;
         var shadows = gfx.getShadows();
-        var fix = false;
-        var fixer = 0;
+        var fix = false, fixer = 0;
         var vert = gfx.getFontSize() / 2;
 
-        if (gridOn === true) {
-            gridGfx.clearShadows();
-        }
-        gridGfx.color(dataColors[0]);
-        gridGfx.line(mx, Oy, Mx, Oy); //<--x
 
-        gridGfx.line(Ox, my, Ox, My);
-        gridGfx.circle(Ox, Oy, 5, dataColors[0]);
+        axesGfx.clearShadows();
+
+        axesGfx.color(dataColors[0]);
+        axesGfx.line(mx, Oy, Mx, Oy);                   // draw the x axis
+
+        axesGfx.line(Ox, my, Ox, My);                   // draw the y axis
+        axesGfx.circle(Ox, Oy, 5, dataColors[0]);       // a small circle about the origin
 
         //demark=false;
 
@@ -533,13 +520,13 @@ function GraphObject(aCanvasName) {
             countend = gridX.length;
             for (loopcount = 0; loopcount < countend; loopcount++) {
                 dd = gridX[loopcount];
-                gridGfx.line(dd, Oy + 5, dd, Oy);
+                axesGfx.line(dd, Oy + 5, dd, Oy);
             }
 
             countend = gridY.length;
             for (loopcount = 0; loopcount < countend; loopcount++) {
                 dd = gridY[loopcount];
-                gridGfx.line(Ox - 5, dd, Ox, dd);
+                axesGfx.line(Ox - 5, dd, Ox, dd);
             }
 
             // insert labels	
@@ -547,7 +534,7 @@ function GraphObject(aCanvasName) {
                 countend = scaley.customLabels.length;
                 for (loopcount = 0; loopcount < countend; loopcount++) {
                     dd = gridY[loopcount];
-                    gridGfx.printLeft(Ox - 10, dd - vert, scaley.customLabels[loopcount] + '');
+                    axesGfx.printLeft(Ox - 10, dd - vert, scaley.customLabels[loopcount] + '');
                 }
             } else {
                 if (scaley.customScale === false) {
@@ -572,9 +559,9 @@ function GraphObject(aCanvasName) {
                         dd = gridY[loopcount];
                         if (base !== 0) {
                             if (fix === false) {
-                                gridGfx.printLeft(Ox - 10, dd - vert, base + '');
+                                axesGfx.printLeft(Ox - 10, dd - vert, base + '');
                             } else {
-                                gridGfx.printLeft(Ox - 10, dd - vert, base.toFixed(fixer) + '');
+                                axesGfx.printLeft(Ox - 10, dd - vert, base.toFixed(fixer) + '');
                             }
                         }
                         dd -= delta;
@@ -605,9 +592,9 @@ function GraphObject(aCanvasName) {
                             //gfx.printLeft(Ox-10,dd-vert,(base/multiplier)+'');
                             value = base / multiplier;
                             if (fix === false) {
-                                gridGfx.printLeft(Ox - 10, dd - vert, value + '');
+                                axesGfx.printLeft(Ox - 10, dd - vert, value + '');
                             } else {
-                                gridGfx.printLeft(Ox - 10, dd - vert, value.toFixed(fixer) + '');
+                                axesGfx.printLeft(Ox - 10, dd - vert, value.toFixed(fixer) + '');
                             }
                         }
                         base = Math.floor(base + count);
@@ -620,8 +607,8 @@ function GraphObject(aCanvasName) {
                 countend = scalex.customLabels.length;
                 for (loopcount = 0; loopcount < countend; loopcount++) {
                     dd = gridX[loopcount];
-                    //gridGfx.printLeft(Ox-10,dd-vert,scalex.customLabels[loopcount]+'');
-                    gridGfx.printCenter(dd, Oy + 10, scalex.customLabels[loopcount]);
+                    //axesGfx.printLeft(Ox-10,dd-vert,scalex.customLabels[loopcount]+'');
+                    axesGfx.printCenter(dd, Oy + 10, scalex.customLabels[loopcount]);
                 }
             } else {
                 if (scalex.customScale === false) {
@@ -645,9 +632,9 @@ function GraphObject(aCanvasName) {
                         dd = Ox + (scale * base);
                         if (base !== 0) {
                             if (fix === false) {
-                                gridGfx.printCenter(dd, Oy + 10, base + '');
+                                axesGfx.printCenter(dd, Oy + 10, base + '');
                             } else {
-                                gridGfx.printCenter(dd, Oy + 10, base.toFixed(fixer) + '');
+                                axesGfx.printCenter(dd, Oy + 10, base.toFixed(fixer) + '');
                             }
                         }
                         dd += delta;
@@ -675,9 +662,9 @@ function GraphObject(aCanvasName) {
                         if (base !== 0) {
                             value = base / multiplier;
                             if (fix === false) {
-                                gridGfx.printCenter(dd, Oy + 10, value + '');
+                                axesGfx.printCenter(dd, Oy + 10, value + '');
                             } else {
-                                gridGfx.printCenter(dd, Oy + 10, value.toFixed(fixer) + '');
+                                axesGfx.printCenter(dd, Oy + 10, value.toFixed(fixer) + '');
                             }
                         }
                         base = Math.floor(base + count);
@@ -686,9 +673,6 @@ function GraphObject(aCanvasName) {
                 }
             }
         }
-        if (shadows === true) {
-            gridGfx.setShadows();
-        }
     }
 
     function showChords(points) {
@@ -696,58 +680,52 @@ function GraphObject(aCanvasName) {
         var type = chordSettings[0], color = gfx.getColor();
         var filler = 5;
         var length = points.length - (points.length % 2);
-        gfx.save();
-        gfx.color(color);
+
+        chordGFx.save();
+        chordGFx.color(color);
+
+        var circlePoint = function(callback){
+            for (i = 0; i < length; i = i + 2) {
+                x = points[i];
+                y = points[i + 1];
+                callback(x, y, radius);
+            }
+        };
+
+        var rectPoint = function(callback){
+            var radius2 = radius + radius;
+            for (i = 0; i < length; i = i + 2) {
+                x = points[i] - radius;
+                y = points[i + 1] - radius;
+                callback(x, y, radius2, radius2);
+            }
+        }
 
         switch (type) {
             case 1:
-                for (i = 0; i < length; i = i + 2) {
-                    x = points[i];
-                    y = points[i + 1];
-                    gfx.circle(x, y, radius);
-                }
+                circlePoint(chordGFx.circle);
                 break;
             case 2:
-                gfx.setFillColor(dataColors[filler]);
-                for (i = 0; i < length; i = i + 2) {
-                    x = points[i];
-                    y = points[i + 1];
-                    gfx.fillCircle(x, y, radius);
-                }
+                chordGFx.setFillColor(dataColors[filler]);
+                circlePoint(chordGFx.fillCircle);
                 break;
             case 3:
-                gfx.setFillColor(color);
-                for (i = 0; i < length; i = i + 2) {
-                    x = points[i];
-                    y = points[i + 1];
-                    gfx.fillCircle(x, y, radius);
-                }
+                chordGFx.setFillColor(color);
+                circlePoint(chordGFx.fillCircle);
                 break;
             case 4:
-                for (i = 0; i < length; i = i + 2) {
-                    x = points[i] - radius;
-                    y = points[i + 1] - radius;
-                    gfx.rect(x, y, radius + radius, radius + radius);
-                }
+                rectPoint(chordGFx.rect);
                 break;
             case 5:
-                gfx.setFillColor(dataColors[filler]);
-                for (i = 0; i < length; i = i + 2) {
-                    x = points[i] - radius;
-                    y = points[i + 1] - radius;
-                    gfx.fillRect(x, y, radius + radius, radius + radius);
-                }
+                chordGFx.setFillColor(dataColors[filler]);
+                rectPoint(chordGFx.fillRect);
                 break;
             case 6:
-                gfx.setFillColor(color);
-                for (i = 0; i < length; i = i + 2) {
-                    x = points[i] - radius;
-                    y = points[i + 1] - radius;
-                    gfx.fillRect(x, y, radius + radius, radius + radius);
-                }
+                chordGFx.setFillColor(color);
+                rectPoint(chordGFx.fillRect);
                 break;
         }
-        gfx.restore();
+        chordGFx.restore();
     };
 
     function barGraphVertical(parameters) {
@@ -847,8 +825,8 @@ function GraphObject(aCanvasName) {
         mx = scaley.minCord;
         Mx = scaley.maxCord;
 
-        gridYOn = false;
-        gridXOn = true;
+       // gridYOn = false;
+      //  gridXOn = true;
         gfx.clearShadows();
 
         length1 = gfx.getHeight();
@@ -913,6 +891,9 @@ function GraphObject(aCanvasName) {
         var data1 = [], data2 = [];
         var x = 0, y = 0, i = 0, j = 0, color = 0;
 
+        plotPolyMode = plotPolyMode || false;
+        areaMode = areaMode || false;
+
         length2 = dataXaxis.length;
 
         scaley.makeScale(ymax, ymin);
@@ -964,9 +945,9 @@ function GraphObject(aCanvasName) {
                 gfx.color(color);
                 gfx.plotArray(dataLine);
             }
-            if (chordsOn === true) {
-                showChords(dataLine);
-            }
+
+            showChords(dataLine);
+
             gfx.restore();
             dataLine = [];
             dataPoly = [];

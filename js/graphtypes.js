@@ -85,6 +85,7 @@
 				//gfx[x].setCustomAxis('y',0.1,-1,1);
 			  	gfx[x].setXYData(datax2,datay2).setFontSize(12);//.turnChordsOff();
 			  	gfx[x].execute(parameters);
+			  	//gfx[x].turnChordsOff();
 		  	}else{
 		  		alert('bad context');
 		  	}

@@ -15,10 +15,7 @@ Array.prototype.mgGetMax = function() {
 
 /* finds the smallest number in an array */
 Array.prototype.mgGetMin = function() {
-	var min = null;
-	var length = this.length;
-	var i = 0;
-	var temp = null;
+	var min = null, length = this.length, i = 0, temp = null;
 	if (length === 0) {
 		return null;
 	}
@@ -33,10 +30,7 @@ Array.prototype.mgGetMin = function() {
 
 /*for a multi-dimensional array finds element with most entries*/
 Array.prototype.mgGetMaxElements = function() {
-	var length = this.length;
-	var data = null;
-	var max = null;
-	var temp = 0;
+	var length = this.length, data = null, max = null, temp = 0;
 	if (length == 0) {
 		return null;
 	}
@@ -53,29 +47,23 @@ Array.prototype.mgGetMaxElements = function() {
 /*
  */
  Array.prototype.mgGetMax2D = function () {
- var length = this.length;
- var data = null;
- var max = null;
- var temp = 0;
- if (this.length <= 0) {
- return null;
- }
- for (i = 0; i < this.length; i++) {
- data = this[i];
- temp = data.mgGetMax();
- if ((temp > max) || (max === null)) {
- max = temp;
- }
- }
- return (max);
+	 var length = this.length, data = null, max = null, temp = 0;
+	 if (this.length <= 0) {
+	 	return null;
+	 }
+	 for (i = 0; i < this.length; i++) {
+		 data = this[i];
+		 temp = data.mgGetMax();
+		 if ((temp > max) || (max === null)) {
+		 	max = temp;
+		 }
+	 }
+	 return (max);
  };
 
  /* */
 Array.prototype.mgGetMin2D = function() {
-	var length = this.length;
-	var data = null;
-	var min = null;
-	var temp = 0;
+	var length = this.length, data = null, min = null, temp = 0;
 	if (length == 0) {
 		return null;
 	}
@@ -101,14 +89,13 @@ function GraphicsInterface() {
 	 *	@para {String} the callee function
 	 *	@private
 	 */
-	function Error(caller, callee) {
-		alert('Error call to a function that is not implemented:\nCaller: ' + arguments[1] + '\nCallee: ' + arguments[0]);
+	function logError(caller, callee) {
+		throw new Error('Error call to a function that is not implemented:\nCaller: ' + caller + '\nCallee: ' + callee);
 	}
 
 
 	this.init = function() {
-		//alert(arguments.callee+'');
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	/**
@@ -117,27 +104,27 @@ function GraphicsInterface() {
 	 *	@return {String} the canvas id
 	 */
 	this.getCanvasId = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.getHeight = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.getWidth = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.getCanvasX = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.getCanvasY = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.setDebug = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.clearDebug = function() {
@@ -145,97 +132,97 @@ function GraphicsInterface() {
 	};
 
 	this.setShadows = function(x, y) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.getShadows = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.setAlpha = function(alpha) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.getAlpha = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.save = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.restore = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.hideLabels = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.setFillColor = function(color) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.getFillColor = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.setShadowColor = function(color) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 	this.getShadowColor = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.getShadowColor = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.setShadowAlpha = function(alpha) {
 
 	};
 	this.getShadowAlpha = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.clearShadows = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.setShadowWidth = function(s) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.setDeg = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.setRad = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.getMode = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.setLineWidth = function(lineWidth) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.getLineWidth = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.setFontSize = function(size) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.getFontSize = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	function debugLib(str, a) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	}
 
 	/**
@@ -244,15 +231,15 @@ function GraphicsInterface() {
 	 *	@para {String} the background color
 	 */
 	this.clear = function(color) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.getColor = function() {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.color = function(color1, color2, color3) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	/**
@@ -263,15 +250,15 @@ function GraphicsInterface() {
 	 *	@para {String} the text to printed
 	 */
 	this.print = function(x, y, text) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.printLeft = function(x, y, text) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.printCenter = function(x, y, text) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	/**
@@ -281,7 +268,7 @@ function GraphicsInterface() {
 	 *	@para {number} the y coordinate in pixels
 	 */
 	this.plot = function(x, y) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	/**
@@ -290,7 +277,7 @@ function GraphicsInterface() {
 	 *	@para {Array} the x1 coordinate in pixels
 	 */
 	this.plotArray = function(points) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	/**
@@ -302,7 +289,7 @@ function GraphicsInterface() {
 	 *	@para {number} the y2 (optional) coordinate in pixels
 	 */
 	this.line = function(x1, y1, x2, y2) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 	/**
 	 *	Draws arc on the canvas.
@@ -313,43 +300,43 @@ function GraphicsInterface() {
 	 *	@para {number} the y2 (optional) coordinate in pixels
 	 */
 	this.arc = function(x, y, radius, a1, a2) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.fillArc = function(x, y, radius, a1, a2) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.circle = function(x, y, radius) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.fillCircle = function(x, y, radius) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.ellipse = function(x, y, r1, r2) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.fillEllipse = function(x, y, r1, r2) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.fillRect = function(x, y, width, height) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.polyLine = function(points) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.polygon = function(points) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 	this.fillPoly = function(points) {
-		Error(arguments[1], arguments[0]);
+		logError(arguments[1], arguments[0]);
 	};
 
 }
@@ -377,7 +364,6 @@ var GraphicsFactory = {
 			case 'vml':
 				gfx = new VMLObject();
 				gfx.init(id);
-				//gfx = null;
 				break;
 			case 'canvas':
 				canvas = document.createElement('canvas');
@@ -584,12 +570,10 @@ function CanvasObject() {
 	var gridctx = null;
 	var container = null;
 	var canvas = null;
-	var gridCanvas = null;
-	var crosshairsCanvas = null;
 
 	var width = 0;
 	var height = 0;
-	var mode = 'radian'// radian or degrees
+	var mode = 'radian'// radians or degrees
 	var direction = true;
 	var PI2 = 2 * Math.PI;
 	var PI180 = Math.PI/180;
@@ -622,11 +606,9 @@ function CanvasObject() {
 
 			width = parseInt(width.replace('px', ''));
 			height = parseInt(height.replace('px', ''));
+			
 			canvas = document.createElement('canvas');
-			gridCanvas = document.createElement('canvas');
-			crosshairsCanvas = document.createElement('canvas');
 			container = myDiv;
-			canvas.style.zIndex = 100;
 
 			textIO = new PrintObject(container, canvas, fontSize);
 			ctx = canvas.getContext('2d');
@@ -640,6 +622,7 @@ function CanvasObject() {
 				style.position = 'absolute';
 				style.top = '0px';
 				style.left = '0px';
+				style.zIndex = 1;
 				ctx = canvas.getContext('2d');
 				myDiv.appendChild(canvas);
 			}
@@ -692,12 +675,8 @@ function CanvasObject() {
 	 */
 	this.setShadows = function(x, y) {
 		shadows = true;
-		if ( typeof x != 'undefined') {
-			shadowX = x;
-		}
-		if ( typeof y != 'undefined') {
-			shadowY = y;
-		}
+		shadowX = x || shadowX;
+		shadowY = y || shadowY;
 		return (this);
 	};
 
@@ -777,9 +756,7 @@ function CanvasObject() {
 	};
 
 	this.setShadowWidth = function(s) {
-		if ( typeof s !== 'undefined') {
-			shadowWidth = s;
-		}
+		shadowWidth = s || shadowWidth;
 		return this;
 	};
 
@@ -791,6 +768,14 @@ function CanvasObject() {
 		mode = 'radian';
 		return this;
 	};
+
+	this.hide = function(){
+		canvas.style.visibility = 'hidden';
+	};
+
+	this.show = function(){
+		canvas.style.visibility = 'visible';
+	}
 
 	/**
 	 *	Returns the shadows mode.
@@ -825,7 +810,7 @@ function CanvasObject() {
 		for (var i = 0; i < length; i++) {
 			str += ' ' + a.arguments[i];
 		}
-		alert(str);
+		console.log(str);
 	}
 
 	/*-----------------------------TEXT FUNCTIONS--------------------------------*/
@@ -860,6 +845,7 @@ function CanvasObject() {
 	this.printCenter = function(x, y, text) {
 		textIO.printCenter(x, y, text);
 	};
+
 	/*-----------------------------GFX FUNCTIONS--------------------------------*/
 	this.clear = function(color) {
 		/* clear canvas */
@@ -1041,26 +1027,28 @@ function CanvasObject() {
 			a2 = PI180 * a2;
 		}
 
-		var shape = function(dx, dy) {
-			ctx.beginPath();
-			ctx.moveTo(x, y);
-			ctx.beginPath();
-			ctx.arc(x + dx, y + dy, radius, a1, a2, direction);
-			ctx.lineTo(x + dx, y + dy);
-			ctx.closePath();
-		};
-
-		shadowWithFill(function() {
-			shape(shadowX, shadowY);
-			ctx.fill();
-		});
+		shadowWithFill(fillArcShapeShadowWithFill);
 		ctx.save();
-		shape(0, 0)
+		fillArcShape(0, 0)
 		ctx.fill();
 		ctx.stroke();
 		ctx.restore();
 		return this;
 	};
+
+	function fillArcShape(dx,dy){
+		ctx.beginPath();
+		ctx.moveTo(x, y);
+		ctx.beginPath();
+		ctx.arc(x + dx, y + dy, radius, a1, a2, direction);
+		ctx.lineTo(x + dx, y + dy);
+		ctx.closePath();
+	 }
+
+	function fillArcShapeShadowWithFill(){
+		fillArcShape(shadowX, shadowY);
+		ctx.fill();
+	 }
 
 	/**
 	 *	Draws a circle on the canvas.
@@ -1074,20 +1062,21 @@ function CanvasObject() {
 	this.circle = function(x, y, radius) {
 
 		shadowWithStroke(function() {
-			ctx.beginPath();
-			ctx.arc(x + shadowX, y + shadowY, radius, 0, PI2, true);
-			ctx.closePath();
-			ctx.stroke();
+			cirleShape(x + shadowX, y + shadowY, radius);
 		});
 
 		ctx.save();
+		cirleShape(x, y, radius);
+		ctx.restore();
+		return this;
+	};
+
+	function cirleShape(x, y, radius){
 		ctx.beginPath();
 		ctx.arc(x, y, radius, 0, PI2, true);
 		ctx.closePath();
 		ctx.stroke();
-		ctx.restore();
-		return this;
-	};
+	}
 
 	/**
 	 *	Draws a filled circle on the canvas.
@@ -1100,19 +1089,20 @@ function CanvasObject() {
 	 */
 	this.fillCircle = function(x, y, radius) {
 		shadowWithFill(function() {
-			ctx.beginPath();
-			ctx.arc(x + shadowX, y + shadowY, radius, 0, PI2, true);
-			ctx.closePath();
-			ctx.fill();
+			fillCircleShape(x+shadowX, y+shadowY, radius);
 		});
 		ctx.save();
+		fillCircleShape(x, y, radius)
+		ctx.stroke();
+		return this;
+	};
+
+	function fillCircleShape(x, y, radius){
 		ctx.beginPath();
 		ctx.arc(x, y, radius, 0, PI2, true);
 		ctx.closePath();
 		ctx.fill();
-		ctx.stroke();
-		return this;
-	};
+	}
 
 	/**
 	 *	Draws an ellipse on the canvas. The horizontal and vertical
@@ -1218,19 +1208,19 @@ function CanvasObject() {
 		return this;
 	};
 
+	function polyLineMakePath(x1, y1, x2, y2){
+		ctx.save();
+		ctx.beginPath();
+		ctx.moveTo(x1, y1);
+		ctx.lineTo(x2, y2);
+		ctx.closePath();
+		ctx.stroke();
+		ctx.restore();
+	}
+
 	this.polyLine = function(points) {
 		var x = 0, y = 0, oldx = 0, oldy = 0, i = 0;
 		var length = points.length - (points.length % 2);
-
-		var makePath = function(x1, y1, x2, y2) {
-			ctx.save();
-			ctx.beginPath();
-			ctx.moveTo(x1, y1);
-			ctx.lineTo(x2, y2);
-			ctx.closePath();
-			ctx.stroke();
-			ctx.restore();
-		};
 
 		var linus = function(sx, sy) {
 			oldx = points[0] + sx;
@@ -1238,7 +1228,7 @@ function CanvasObject() {
 			for ( i = 2; i < length; i = i + 2) {
 				x = points[i] + sx;
 				y = points[i + 1] + sy;
-				makePath(x, y, oldx, oldy);
+				polyLineMakePath(x, y, oldx, oldy);
 				oldx = x;
 				oldy = y;
 			}

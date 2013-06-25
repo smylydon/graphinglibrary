@@ -75,12 +75,18 @@ function SVGObject() {
             canvas.setAttribute('width', width);
             canvas.setAttribute('height', height);
             canvas.setAttribute('version', '1.2');
-            canvas.setAttribute('style', 'overlow:hidden;position:relative;');
+            canvas.setAttribute('style', 'overlow:hidden;position:absolute;top:0;left:0');
             canvasholder.appendChild(canvas);
-            p = new PrintObject(id, canvasX, canvasY, fontSize);
+            p = new PrintObject(canvasholder, canvas, fontSize);
         }
     };
+    this.hide = function(){
+        canvas.style.visibility = 'hidden';
+    };
 
+    this.show = function(){
+        canvas.style.visibility = 'visible';
+    }
     this.getCanvasId = function () {
         return (canvas.id);
     };
@@ -452,7 +458,7 @@ function SVGObject() {
         return this;
     }
 
-    this.polyline = function (points) {
+    this.polyLine = function (points) {
         polygons('polyline', points, 'none');
         return this;
     };
