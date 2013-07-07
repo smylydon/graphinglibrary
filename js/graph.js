@@ -797,7 +797,7 @@ function GraphObject(aCanvasName) {
                 } else {
                     y2 = Oy;
                 }
-                gfx.fillRect(x1 + 1, y2, barWidth - 1, barHeight);
+                gfx.fillRect(x1 + 1, y2, barWidth - 1, barHeight,true);
                 x1 += width;
             }
             x2 += barSpacing;

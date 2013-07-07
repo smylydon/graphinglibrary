@@ -340,24 +340,43 @@ function SVGObject() {
         return this;
     };
 
+    function makeAnimation(attributeName,from,to,shape) {
+        var anim = null;
+        anim = document.createElementNS("http://www.w3.org/2000/svg", 'animate');
+        anim.setAttribute('dur','1400ms');
+        anim.setAttribute('from',from);
+        anim.setAttribute('to',to);
+        anim.setAttribute('attributeName',attributeName);
+        anim.setAttribute('fill','freeze');
+        shape.appendChild(anim);
+    }
+
     function makeAShape(shape, fill) {
         var aShape = null;
         aShape = document.createElementNS("http://www.w3.org/2000/svg", shape);
+        var s="fill:"+fill+";stroke:"+pen+";opacity:"+globalAlpha+";stroke-width"+lineDrawWidth;
+        aShape.setAttribute('style',s);
+        /*
         aShape.setAttribute("fill", fill);
         aShape.setAttribute("stroke", pen);
         aShape.setAttribute("opacity", globalAlpha);
         aShape.setAttribute("stroke-width", lineDrawWidth);
+        */
         canvas.appendChild(aShape);
         return aShape;
     }
 
     function makeAShadow(shape, fill) {
         var aShape = null;
+        var s="fill:"+fill+";stroke:"+shadowColor+";opacity:"+shadowAlpha+";stroke-width"+lineDrawWidth;
+
         aShape = document.createElementNS("http://www.w3.org/2000/svg", shape);
+        aShape.setAttribute('style',s);
+        /*
         aShape.setAttribute("fill", fill);
         aShape.setAttribute("stroke", shadowColor);
         aShape.setAttribute("opacity", shadowAlpha);
-        aShape.setAttribute("stroke-width", shadowWidth);
+        aShape.setAttribute("stroke-width", shadowWidth);*/
         canvas.appendChild(aShape);
         return aShape;
     }
@@ -414,20 +433,33 @@ function SVGObject() {
         return this;
     };
 
-    function rectangle(x, y, aWidth, aHeight, fill) {
+    function rectangle(x, y, aWidth, aHeight, fill, animate) {
         var aRect = null;
+        var aRect2 = null;
+
+        var interval = null;
+
+        animate = animate || false;
+
         if (shadows === true) {
-            aRect = makeAShadow('rect', fill);
-            aRect.setAttribute('x', x + shadowX);
-            aRect.setAttribute('y', y + shadowY);
-            aRect.setAttribute('width', aWidth);
-            aRect.setAttribute('height', aHeight);
+            aRect2 = makeAShadow('rect', fill);
+            aRect2.setAttribute('x', x + shadowX);
+            aRect2.setAttribute('y', y + shadowY);
+            aRect2.setAttribute('width', aWidth);
+            aRect2.setAttribute('height', aHeight);
         }
         aRect = makeAShape('rect', fill);
         aRect.setAttribute('x', x);
-        aRect.setAttribute('y', y);
         aRect.setAttribute('width', aWidth);
-        aRect.setAttribute('height', aHeight);
+        if(animate && aHeight>=1){
+            aRect.setAttribute('y', y+aHeight-1);
+            aRect.setAttribute('height', 1);
+            makeAnimation('y',y+aHeight-1,y,aRect);
+            makeAnimation('height',1,aHeight,aRect);
+        }else{
+            aRect.setAttribute('y', y);
+            aRect.setAttribute('height', aHeight);
+        }
     }
 
     this.rect = function (x, y, aWidth, aHeight) {
@@ -435,8 +467,8 @@ function SVGObject() {
         return this;
     };
 
-    this.fillRect = function (x, y, aWidth, aHeight) {
-        rectangle(x, y, aWidth, aHeight, fillColor);
+    this.fillRect = function (x, y, aWidth, aHeight,animate) {
+        rectangle(x, y, aWidth, aHeight, fillColor,animate);
         return this;
     };
 
