@@ -442,39 +442,43 @@ function GraphObject(aCanvasName) {
 
 ///////////////////////////////////////////////////////////////////////////////
     function drawXAxisTicks() {
+        var originYplusFive = originY + 5;
         var length = gridX.length;
         for (var i = 0; i < length; i++) {
-            var delta = gridX[i];
-            axesGfx.line(deltaX, originY + 5, deltaX, originY);
+            var deltaX = gridX[i];
+            axesGfx.line(deltaX, originYplusFive, deltaX, originY);
         }
     };
 
     function drawYAxisTicks() {
         var length = gridY.length;
+        var originXminusFive = originX - 5;
         for (var i = 0; i < length; i++) {
             deltaY = gridY[i];
-            axesGfx.line(originX - 5, deltaY, originX, deltaY);
+            axesGfx.line(originXminusFive , deltaY, originX, deltaY);
         }
     };
 
     function drawXAxisCustomLabels() {
         var length = scalex.customLabels.length,
-            customLabels = scalex.customLabels;
+            customLabels = scalex.customLabels,
+            originYplusTen = originY + 10;
 
         for (var i = 0; i < length; i++) {
             deltaX = gridX[i];
-            axesGfx.printCenter(deltaX, originY + 10, customLabels[i]);
+            axesGfx.printCenter(deltaX, originYplusTen , customLabels[i]);
         }
     };
 
     function drawYAxisCustomLabels() {
         var halfFontHeight = gfx.getFontSize() / 2,
             length = scaley.customLabels.length,
-            customLabels = scaley.customLabels;
+            customLabels = scaley.customLabels,
+            originXminusTen = originX - 10;
 
         for (var i = 0; i < length; i++) {
             deltaY = gridY[i];
-            axesGfx.printLeft(originX - 10, deltaY - halfFontHeight, customLabels[i] + '');
+            axesGfx.printLeft(originXminusTen, deltaY - halfFontHeight, customLabels[i] + '');
         }
     };
 
@@ -516,10 +520,10 @@ function GraphObject(aCanvasName) {
     };
 
     function drawXAxisCustomScale() {
-        var countend = ((scalex.customEnd - countstart) / count),
-            scaleMin = scalex.scaleMin,
+        var countstart = scalex.customStart,
             count = scalex.customStep,
-            countstart = scalex.customStart,
+            countend = ((scalex.customEnd - countstart) / count),
+            scaleMin = scalex.scaleMin,
             deltaX = originX,
             base = countstart,
             callback = drawXAxisCallbackFactory(count / factor);
@@ -532,6 +536,19 @@ function GraphObject(aCanvasName) {
             base = Math.floor(base + count);
         }
     };
+
+    function drawXAxis() {
+        if (scalex.customLabelsOn === true) {
+            drawXAxisCustomLabels();
+        } else {
+            if (scalex.customScale === false) {
+                drawXAxisNormalScale(); 
+            } else {
+                drawXAxisCustomScale();
+            }
+        }
+    };
+
 
     function drawYAxisCallbackFactory(condition) {
         var originXminusTen = originX-10,
@@ -589,18 +606,6 @@ function GraphObject(aCanvasName) {
         }
     };
 
-    function drawXAxis() {
-        if (scalex.customLabelsOn === true) {
-            drawXAxisCustomLabels();
-        } else {
-            if (scalex.customScale === false) {
-                drawXAxisNormalScale(); 
-            } else {
-                drawXAxisCustomScale();
-            }
-        }
-    };
-
     function drawYAxis() {
         // insert labels    
         if (scaley.customLabelsOn === true) {
@@ -615,24 +620,26 @@ function GraphObject(aCanvasName) {
     };
 
     /**
-    *   Draws the x and y axes.
+    * Draws the x and y axes.
+    *
+    * param {boolean} showTicks determines if the axes are label or not.
+    * return {void}
     */
     function drawAxis(showTicks) {
         axesGfx.clearShadows();
 
-        axesGfx.color(dataColors[0]);
-        axesGfx.line(minimumX, originY, maximumX, originY);                   // draw the x axis
+        axesGfx.color(dataColors[0]);                           // set colour to black
+        axesGfx.line(minimumX, originY, maximumX, originY);     // draw the x axis
 
-        axesGfx.line(originX, minimumY, originX, maximumY);                   // draw the y axis
-        axesGfx.circle(originX, originY, 5, dataColors[0]);       // a small circle about the origin
-
-        //demark=false;
+        axesGfx.line(originX, minimumY, originX, maximumY);     // draw the y axis
+        axesGfx.circle(originX, originY, 5, dataColors[0]);     // a small circle about the origin
 
         if (showTicks) {
-
+            // Draw the scale ( ticks )
             drawXAxisTicks();
             drawYAxisTicks();
 
+            // Place labels next to the ticks.
             drawYAxis();
             drawXAxis();
         }
