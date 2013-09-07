@@ -16,12 +16,12 @@ function GraphObject(aCanvasName) {
     var chordGFx = null;
     var gridGfx = null;
     var axesGfx = null;
-    var Ox = 0; //x origin
-    var Oy = 0; //y origin
-    var mx = 0; //minimum x
-    var my = 0; //minimum y
-    var Mx = 0; //max x
-    var My = 0; //max y
+    var originX = 0; //x origin
+    var originY = 0; //y origin
+    var minimumX = 0; //minimum x
+    var minimumY = 0; //minimum y
+    var maximumX = 0; //max x
+    var maximumY = 0; //max y
     var factor = Math.pow(10, 6); //used to correct javascript bug with small numbers
 
     var areaChart = false; //area chart true or false
@@ -269,412 +269,376 @@ function GraphObject(aCanvasName) {
         return '0x00';
     };
 
-    function drawLinePlotGrid() {
-        var loopcount = 0;
-        var dd = 0;
-        var delta = 0;
-        var base = 0;
-        var count = 0;
-        var countstart = 0;
-        var countend = 0;
-        var scale = 0;
-        var shadows = gfx.getShadows();
-        var scaleMin = 0;
-        var scaleDelta = 0;
-        var multiplier = factor;
-
+    function getScaleAndOrigin() {
         gridX = [];
         gridY = [];
 
-        Ox = scalex.origin;
-        mx = scalex.minCord;
-        Mx = scalex.maxCord;
+        originX = scalex.origin;
+        minimumX = scalex.minCord;
+        maximumX = scalex.maxCord;
 
-        Oy = scaley.origin;
-        my = scaley.minCord;
-        My = scaley.maxCord;
+        originY = scaley.origin;
+        minimumY = scaley.minCord;
+        maximumY = scaley.maxCord;
+    };
 
-        if (scaley.customScale === false) {
-            scale = scaley.scale;
-            scaleMin = scaley.scaleMin;
-            scaleDelta = scaley.scaleDelta;
-            countend = scaley.scaleCount + 1;
+    function drawGrid(shadows) {
+        var length;
 
-            delta = scale;
-            dd = scaley.origin;
-            base = Math.floor(scaleMin * multiplier) / multiplier;
-
-            for (loopcount = 0; loopcount <= countend; loopcount++) {
-                dd = Oy - (scale * base);
-                gridY.push(dd);
-                dd -= delta;
-                base = Math.floor((scaleMin + scaleDelta * loopcount) * multiplier) / multiplier;
-            }
-
-        } else {
-            countstart = scaley.customStart;
-            count = scaley.customStep;
-            countend = ((scaley.customEnd - countstart) / count) + 1;
-            scale = scaley.scale;
-            base = countstart;
-
-            for (loopcount = 0; loopcount < countend; loopcount++) {
-                dd = Oy - Math.floor(scale * base) / factor;
-                gridY.push(dd);
-                base = base + count;
-            }
-        }
-
-        if (scalex.customScale === false) {
-            countend = scalex.scaleCount + 1;
-            scale = scalex.scale;
-            delta = scalex.scale;
-            scaleMin = scalex.scaleMin;
-            scaleDelta = scalex.scaleDelta;
-            dd = scalex.origin;
-            base = Math.floor(scalex.scaleMin * multiplier) / multiplier;
-
-            for (loopcount = 0; loopcount <= countend; loopcount++) {
-                dd = (scale * base) + Ox;
-                gridX.push(dd);
-                dd += delta;
-                base = Math.floor((scaleMin + scaleDelta * loopcount) * multiplier) / multiplier;
-            }
-
-        } else {
-            countstart = scalex.customStart;
-            count = scalex.customStep;
-            countend = ((scalex.customEnd - countstart) / count);
-            base = countstart;
-            scale = scalex.scale;
-
-            for (loopcount = 0; loopcount <= countend; loopcount++) {
-                dd = Ox + (Math.floor(scale * base) / multiplier);
-                gridX.push(dd);
-                base = base + count;
-            }
-        }
-
+        shadows = shadows || true;
         gridGfx.color(dataColors[gridColor]);
         gridGfx.clearShadows();
         gridGfx.save();
         gridGfx.setLineWidth(1);
         gridGfx.setAlpha(0.35);
         
-        gridGfx.line(mx, my, Mx, my);
-        gridGfx.line(mx, my, mx, My);
+        gridGfx.line(minimumX, minimumY, maximumX, minimumY);
+        gridGfx.line(minimumX, minimumY, minimumX, maximumY);
 
-        gridGfx.line(mx, My, Mx, My);
-        gridGfx.line(Mx, my, Mx, My);
+        gridGfx.line(minimumX, maximumY, maximumX, maximumY);
+        gridGfx.line(maximumX, minimumY, maximumX, maximumY);
         
 
-       // if (gridXOn === true) {
-            countend = gridX.length;
-            for (loopcount = 0; loopcount < countend; loopcount++) {
-                dd = gridX[loopcount];
-                gridGfx.line(dd, my, dd, My);
+        //if (gridXOn === true) {
+            length = gridX.length;
+            for (var i = 0; i < length; i++) {
+                var deltaX = gridX[loopcount];
+                gridGfx.line(deltaX, minimumY, deltaX, maximumY);
             }
        // }
 
         //if (gridYOn === true) {
-            countend = gridY.length;
-            for (loopcount = 0; loopcount < countend; loopcount++) {
-                dd = gridY[loopcount];
-                gridGfx.line(mx, dd, Mx, dd);
+            length = gridY.length;
+            for (var j = 0; j < length; j++) {
+                var deltaY = gridY[j];
+                gridGfx.line(minimumX, deltaY, maximumX, deltaY);
             }
-       // }
+        //}
         gridGfx.restore();
         if (shadows === true) {
             gridGfx.setShadows();
         }
-    }
+    };
 
-    function drawBarGrid(barSpacing, groups) {
-        //used for bar graph gridding
-        var loopcount = 0;
-        var dd = 0;
-        var delta = 0;
-        var base = 0;
-        var count = 0;
-        var countstart = 0;
-        var countend = 0;
-        var scale = 0;
-        var scaleMin = 0;
-        var scaleDelta = 0;
-        var multiplier = factor;
+    function xGridCoordinates() {
+        var countend = scalex.scaleCount + 1,
+            scale = scalex.scale,
+            tickX = scalex.scale;
+            scaleMin = scalex.scaleMin,
+            scaleDelta = scalex.scaleDelta,
+            deltaX = scalex.origin,
+            base = Math.floor(scalex.scaleMin * factor) / factor;
 
-        gridX = [];
-        gridY = [];
+        for (var i = 0; i <= countend; i++) {
+            deltaX = (scale * base) + originX;
+            gridX.push(deltaX);
+            delta += tickX;
+            base = Math.floor((scaleMin + scaleDelta * i) * factor) / factor;
+        }
+    };
 
-        Ox = scalex.origin;
-        mx = scalex.minCord;
-        Mx = scalex.maxCord;
+    function xGridCoordinatesCustomAxis() {
+        var countstart = scalex.customStart,
+            count = scalex.customStep,
+            countend = ((scalex.customEnd - countstart) / count),
+            base = countstart,
+            scale = scalex.scale;
 
-        Oy = scaley.origin;
-        my = scaley.minCord;
-        My = scaley.maxCord;
+        for (var i = 0; i <= countend; i++) {
+            deltaX = originX + (Math.floor(scale * base) / factor);
+            gridX.push(deltaX);
+            base = base + count;
+        }
+    };
 
-        if (orientation === 'v') {
-            if (scaley.customScale === false) {
-                scale = scaley.scale;
-                scaleMin = scaley.scaleMin;
-                scaleDelta = scaley.scaleDelta;
-                countend = scaley.scaleCount + 1;
+    function yGridCoordinates() {
+        var scale = scaley.scale,
+            scaleMin = scaley.scaleMin,
+            scaleDelta = scaley.scaleDelta,
+            countend = scaley.scaleCount + 1,
+            tickY = scale,
+            deltaY = scaley.origin,
+            base = Math.floor(scaleMin * factor) / factor;
 
-                delta = scale;
-                dd = scaley.origin;
-                base = Math.floor(scaleMin * multiplier) / multiplier;
+        for (var j = 0; j <= countend; j++) {
+            deltaY = originY - (scale * base);
+            gridY.push(deltaY);
+            deltaY -= tickY;
+            base = Math.floor((scaleMin + scaleDelta * j) * factor) / factor;
+        }
+    };
 
-                for (loopcount = 0; loopcount <= countend; loopcount++) {
-                    dd = Oy - (scale * base);
-                    gridY.push(dd);
-                    dd -= delta;
-                    base = Math.floor((scaleMin + scaleDelta * loopcount) * multiplier) / multiplier;
-                }
-                base = Ox + (barSpacing / 2);
-                for (loopcount = 0; loopcount < groups; loopcount++) {
-                    gridX.push(base);
-                    //alert(base);
-                    base = base + barSpacing;
-                }
-            }
+    function yGridCoordinatesCustomAxis() {
+        var countstart = scaley.customStart,
+            count = scaley.customStep,
+            countend = ((scaley.customEnd - countstart) / count) + 1,
+            scale = scaley.scale,
+            base = countstart;
+
+        for (var j = 0; j < countend; j++) {
+            deltaY = originY - Math.floor(scale * base) / factor;
+            gridY.push(deltaY);
+            base = base + count;
+        }
+    };
+
+    function drawLinePlotGrid() {
+
+        getScaleAndOrigin();
+
+        if (scaley.customScale === false) {
+            yGridCoordinates();
         } else {
-            if ((scalex.customScale === false) && (gridXOn === true)) {
-                countend = scalex.scaleCount + 1;
-                scale = scalex.scale;
-                delta = scalex.scale;
-                scaleMin = scalex.scaleMin;
-                scaleDelta = scalex.scaleDelta;
-                dd = scalex.origin;
-                base = Math.floor(scalex.scaleMin * multiplier) / multiplier;
-
-                for (loopcount = 0; loopcount <= countend; loopcount++) {
-                    dd = (scale * base) + Ox;
-                    gridX.push(dd);
-                    dd += delta;
-                    base = Math.floor((scaleMin + scaleDelta * loopcount) * multiplier) / multiplier;
-                }
-                base = Oy + (barSpacing / 2);
-                for (loopcount = 0; loopcount < groups; loopcount++) {
-                    gridY.push(base);
-                    //alert(base);
-                    base = base + barSpacing;
-                }
-            }
+            yGridCoordinatesCustomAxis
         }
 
-            gridGfx.color(dataColors[gridColor]);
-            gridGfx.save();
-            gridGfx.clearShadows();
-            gridGfx.setLineWidth(1);
-            gridGfx.setAlpha(0.35);
-            gridGfx.line(mx, my, Mx, my);
-            gridGfx.line(mx, my, mx, My);
+        if (scalex.customScale === false) {
+            xGridCoordinates();
+        } else {
+            xGridCoordinatesCustomAxis();
+        }
 
-            gridGfx.line(mx, My, Mx, My);
-            gridGfx.line(Mx, my, Mx, My);
+        drawGrid(gfx.getShadows());
+    };
 
-            countend = gridX.length;
-            //if (gridXOn === true) {
-                for (loopcount = 0; loopcount < countend; loopcount++) {
-                    dd = gridX[loopcount];
-                    gridGfx.line(dd, my, dd, My);
-                }
-           // }
+    function yBarGridCoordinates(barSpacing, groups) {
+        if (scaley.customScale === false) {
+            yGridCoordinates();
+            var base = originX + (barSpacing / 2);
+            for (var i = 0; i < groups; i++) {
+                gridX.push(base);
+                //alert(base);
+                base = base + barSpacing;
+            }
+        }
+    };
+    
+    function xBarGridCoordinates(barSpacing, groups) {
+        
+        if ((scalex.customScale === false) && (gridXOn === true)) {
+            xGridCoordinates();
 
-            countend = gridY.length;
-            //if (gridYOn === true) {
-                for (loopcount = 0; loopcount < countend; loopcount++) {
-                    dd = gridY[loopcount];
-                    gridGfx.line(mx, dd, Mx, dd);
-                }
-            //}
-            gridGfx.restore();
+            var base = originY + (barSpacing / 2);
+            for (var j = 0; j < groups; j++) {
+                gridY.push(base);
+                //alert(base);
+                base = base + barSpacing;
+            }
+        }
+    };
+
+    function drawBarGrid(barSpacing, groups) {
+
+        getScaleAndOrigin();
+
+        if (orientation === 'v') {
+            yBarGridCoordinates(barSpacing,groups);
+        } else {
+            xBarGridCoordinates(barSpacing,groups);
+        }
+
+        drawGrid(gfx.getShadows());
     }
+
+///////////////////////////////////////////////////////////////////////////////
+    function drawXAxisTicks() {
+        var length = gridX.length;
+        for (var i = 0; i < length; i++) {
+            var delta = gridX[i];
+            axesGfx.line(deltaX, originY + 5, deltaX, originY);
+        }
+    };
+
+    function drawYAxisTicks() {
+        var length = gridY.length;
+        for (var i = 0; i < length; i++) {
+            deltaY = gridY[i];
+            axesGfx.line(originX - 5, deltaY, originX, deltaY);
+        }
+    };
+
+    function drawXAxisCustomLabels() {
+        var length = scalex.customLabels.length,
+            customLabels = scalex.customLabels;
+
+        for (var i = 0; i < length; i++) {
+            deltaX = gridX[i];
+            axesGfx.printCenter(deltaX, originY + 10, customLabels[i]);
+        }
+    };
+
+    function drawYAxisCustomLabels() {
+        var halfFontHeight = gfx.getFontSize() / 2,
+            length = scaley.customLabels.length,
+            customLabels = scaley.customLabels;
+
+        for (var i = 0; i < length; i++) {
+            deltaY = gridY[i];
+            axesGfx.printLeft(originX - 10, deltaY - halfFontHeight, customLabels[i] + '');
+        }
+    };
+
+    function drawXAxisCallbackFactory(condition) {
+        var originYplusTen = originY+10,
+            callback = null;
+
+        condition = Math.floor(log(condition));
+
+        if (condition >= 0) {
+            callback = function (deltaX,value) {
+                axesGfx.printCenter(deltaX, originYplusTen, value + '');
+            }
+        } else {
+            var fixer = -1 * condition;
+            callback = function (deltaX,value) {
+                axesGfx.printCenter(deltaX, originYplusTen, value.toFixed(fixer) + '');
+            }
+        }
+        return callback;
+    };
+
+    function drawXAxisNormalScale() {
+        var countend = scalex.scaleCount + 1,
+            scale = scalex.scale,
+            scaleMin = scalex.scaleMin,
+            scaleDelta = scalex.scaleDelta,
+            deltaX = originX,
+            base = Math.floor(scaleMin * factor) / factor,
+            callback = drawXAxisCallbackFactory(scaleDelta);
+
+        for (var i=0; i <= countend; i++) {
+            deltaX = originX + (scale * base);
+            if (base !== 0) {
+                callback(deltaX,base);
+            }
+            base = Math.floor((scaleMin + scaleDelta * i) * factor) / factor;
+        }
+    };
+
+    function drawXAxisCustomScale() {
+        var countend = ((scalex.customEnd - countstart) / count),
+            scaleMin = scalex.scaleMin,
+            count = scalex.customStep,
+            countstart = scalex.customStart,
+            deltaX = originX,
+            base = countstart,
+            callback = drawXAxisCallbackFactory(count / factor);
+
+        for (var i=0; i <= countend; i++) {
+            deltaX = gridX[i];
+            if (base !== 0) {
+                callback(deltaX,base /factor);
+            }
+            base = Math.floor(base + count);
+        }
+    };
+
+    function drawYAxisCallbackFactory(condition) {
+        var originXminusTen = originX-10,
+            halfFontHeight = gfx.getFontSize() / 2;
+            callback = null;
+
+        condition = Math.floor(log(condition));
+
+        if (condition >= 0) {
+            callback = function (deltaY,value) {
+                axesGfx.printLeft(originXminusTen, deltaY - halfFontHeight, value + '');
+            }
+        } else {
+            var fixer = -1 * condition;
+            callback = function (deltaY,value) {
+                axesGfx.printLeft(originXminusTen, deltaY - halfFontHeight, value.toFixed(fixer) + '');
+            }
+        }
+        return callback;
+    };
+
+    function drawYAxisNormalScale() {
+        var countend = scaley.scaleCount + 1,
+            scaleMin = scaley.scaleMin,
+            scaleDelta = scaley.scaleDelta,
+            deltaY = originY,
+            base = Math.floor(scaleMin * factor) / factor,
+            callback = drawYAxisCallbackFactory(scaleDelta);
+
+        for (var i=0; i <= countend; i++) {
+            deltaY = gridY[i];
+            if (base !== 0) {
+                callback(deltaY,base);
+            }
+            base = Math.floor((scaleMin + scaleDelta * i) * factor) / factor;
+        }
+    };
+
+    function drawYAxisCustomScale() {
+        var countstart = scaley.customStart,
+            count = scaley.customStep,
+            countend = ((scaley.customEnd - countstart) / count) + 1,
+            scale = scaley.scale,
+            base = countstart,
+            value = 0;
+            callback = drawYAxisCallbackFactory(count / factor);
+
+        for (var i=0; i < countend; i++) {
+            deltaY = originY - Math.floor(scale * base) / factor;
+            if (base !== 0) {
+                value = base / factor;
+                callback(deltaY,base);
+            }
+            base = Math.floor(base + count);
+        }
+    };
+
+    function drawXAxis() {
+        if (scalex.customLabelsOn === true) {
+            drawXAxisCustomLabels();
+        } else {
+            if (scalex.customScale === false) {
+                drawXAxisNormalScale(); 
+            } else {
+                drawXAxisCustomScale();
+            }
+        }
+    };
+
+    function drawYAxis() {
+        // insert labels    
+        if (scaley.customLabelsOn === true) {
+            drawYAxisCustomLabels();
+        } else {
+            if (scaley.customScale === false) {
+                drawYAxisNormalScale();
+            } else {
+                drawYAxisCustomScale();
+            }
+        }
+    };
+
     /**
     *   Draws the x and y axes.
     */
-    function drawAxis(demark) {
-        var loopcount = 0;
-        var dd = 0, delta = 0, base = 0;
-        var count = 0, countstart = 0, countend = 0;
-        var scale = 0, scaleMin = 0, scaleDelta = 0;
-        var multiplier = factor;
-        var shadows = gfx.getShadows();
-        var fix = false, fixer = 0;
-        var vert = gfx.getFontSize() / 2;
-
-
+    function drawAxis(showTicks) {
         axesGfx.clearShadows();
 
         axesGfx.color(dataColors[0]);
-        axesGfx.line(mx, Oy, Mx, Oy);                   // draw the x axis
+        axesGfx.line(minimumX, originY, maximumX, originY);                   // draw the x axis
 
-        axesGfx.line(Ox, my, Ox, My);                   // draw the y axis
-        axesGfx.circle(Ox, Oy, 5, dataColors[0]);       // a small circle about the origin
+        axesGfx.line(originX, minimumY, originX, maximumY);                   // draw the y axis
+        axesGfx.circle(originX, originY, 5, dataColors[0]);       // a small circle about the origin
 
         //demark=false;
 
-        if (demark) {
+        if (showTicks) {
 
-            countend = gridX.length;
-            for (loopcount = 0; loopcount < countend; loopcount++) {
-                dd = gridX[loopcount];
-                axesGfx.line(dd, Oy + 5, dd, Oy);
-            }
+            drawXAxisTicks();
+            drawYAxisTicks();
 
-            countend = gridY.length;
-            for (loopcount = 0; loopcount < countend; loopcount++) {
-                dd = gridY[loopcount];
-                axesGfx.line(Ox - 5, dd, Ox, dd);
-            }
-
-            // insert labels	
-            if (scaley.customLabelsOn === true) {
-                countend = scaley.customLabels.length;
-                for (loopcount = 0; loopcount < countend; loopcount++) {
-                    dd = gridY[loopcount];
-                    axesGfx.printLeft(Ox - 10, dd - vert, scaley.customLabels[loopcount] + '');
-                }
-            } else {
-                if (scaley.customScale === false) {
-                    countstart = scalex.customStart;
-                    count = scalex.customStep;
-                    countend = scaley.scaleCount + 1;
-                    scaleMin = scaley.scaleMin;
-                    scaleDelta = scaley.scaleDelta;
-                    dd = Oy;
-
-                    base = Math.floor(scaley.scaleMin * multiplier) / multiplier;
-                    loopcount = 0;
-                    fixer = Math.floor(log(scaleDelta));
-                    fix = false;
-                    if (fixer >= 0) {
-                        fix = false;
-                    } else {
-                        fix = true;
-                        fixer = -1 * fixer;
-                    }
-                    while (loopcount <= countend) {
-                        dd = gridY[loopcount];
-                        if (base !== 0) {
-                            if (fix === false) {
-                                axesGfx.printLeft(Ox - 10, dd - vert, base + '');
-                            } else {
-                                axesGfx.printLeft(Ox - 10, dd - vert, base.toFixed(fixer) + '');
-                            }
-                        }
-                        dd -= delta;
-                        base = Math.floor((scaleMin + scaleDelta * loopcount) * multiplier) / multiplier;
-                        loopcount++;
-                    }
-                } else {
-                    countstart = scaley.customStart;
-                    count = scaley.customStep;
-                    countend = ((scaley.customEnd - countstart) / count) + 1;
-                    scale = scaley.scale;
-                    base = countstart;
-                    loopcount = 0;
-
-                    fixer = Math.floor(log(count / multiplier));
-                    fix = false;
-
-                    if (fixer >= 0) {
-                        fix = false;
-                    } else {
-                        fix = true;
-                        fixer = -1 * fixer;
-                    }
-
-                    while (loopcount < countend) {
-                        dd = Oy - Math.floor(scale * base) / multiplier;
-                        if (base !== 0) {
-                            //gfx.printLeft(Ox-10,dd-vert,(base/multiplier)+'');
-                            value = base / multiplier;
-                            if (fix === false) {
-                                axesGfx.printLeft(Ox - 10, dd - vert, value + '');
-                            } else {
-                                axesGfx.printLeft(Ox - 10, dd - vert, value.toFixed(fixer) + '');
-                            }
-                        }
-                        base = Math.floor(base + count);
-                        loopcount++;
-                    }
-                }
-            }
-
-            if (scalex.customLabelsOn === true) {
-                countend = scalex.customLabels.length;
-                for (loopcount = 0; loopcount < countend; loopcount++) {
-                    dd = gridX[loopcount];
-                    //axesGfx.printLeft(Ox-10,dd-vert,scalex.customLabels[loopcount]+'');
-                    axesGfx.printCenter(dd, Oy + 10, scalex.customLabels[loopcount]);
-                }
-            } else {
-                if (scalex.customScale === false) {
-                    countend = scalex.scaleCount + 1;
-                    base = Math.floor(scalex.scaleMin * multiplier) / multiplier;
-                    scale = scalex.scale;
-                    scaleMin = scalex.scaleMin;
-                    scaleDelta = scalex.scaleDelta;
-                    delta = scale;
-                    dd = Ox;
-                    fixer = Math.floor(log(scaleDelta));
-                    fix = false;
-                    if (fixer >= 0) {
-                        fix = false;
-                    } else {
-                        fix = true;
-                        fixer = -1 * fixer;
-                    }
-                    loopcount = 0;
-                    while (loopcount <= countend) {
-                        dd = Ox + (scale * base);
-                        if (base !== 0) {
-                            if (fix === false) {
-                                axesGfx.printCenter(dd, Oy + 10, base + '');
-                            } else {
-                                axesGfx.printCenter(dd, Oy + 10, base.toFixed(fixer) + '');
-                            }
-                        }
-                        dd += delta;
-                        base = Math.floor((scaleMin + scaleDelta * loopcount) * multiplier) / multiplier;
-                        loopcount++;
-                    }
-                } else {
-                    countstart = scalex.customStart;
-                    count = scalex.customStep;
-                    countend = ((scalex.customEnd - countstart) / count);
-                    scale = scalex.scale;
-                    base = countstart;
-
-                    loopcount = 0;
-                    fixer = Math.floor(log(count / multiplier));
-                    fix = false;
-                    if (fixer >= 0) {
-                        fix = false;
-                    } else {
-                        fix = true;
-                        fixer = -1 * fixer;
-                    }
-                    while (loopcount <= countend) {
-                        dd = gridX[loopcount];
-                        if (base !== 0) {
-                            value = base / multiplier;
-                            if (fix === false) {
-                                axesGfx.printCenter(dd, Oy + 10, value + '');
-                            } else {
-                                axesGfx.printCenter(dd, Oy + 10, value.toFixed(fixer) + '');
-                            }
-                        }
-                        base = Math.floor(base + count);
-                        loopcount++;
-                    }
-                }
-            }
+            drawYAxis();
+            drawXAxis();
         }
     }
 
+///////////////////////////////////////////////////////////////////////////////
     function showChords(points) {
         var x = 0, y = 0, i = 0, radius = chordSettings[1];
         var type = chordSettings[0], color = gfx.getColor();
@@ -745,9 +709,9 @@ function GraphObject(aCanvasName) {
 
         orientation = 'v'; //<---vertical bars
 
-        Oy = scaley.origin;
-        my = scaley.minCord;
-        My = scaley.maxCord;
+        originY = scaley.origin;
+        minimumY = scaley.minCord;
+        maximumY = scaley.maxCord;
 
         gridXOn = false;
         gfx.clearShadows();
@@ -759,12 +723,12 @@ function GraphObject(aCanvasName) {
 
         scaley.makeScale(ymax, ymin);
         scale2 = scaley.scale;
-        Oy = scaley.origin;
+        originY = scaley.origin;
 
-        Ox = x2 = baseX;
-        scalex.origin = Ox;
-        mx = scalex.minCord = baseX;
-        Mx = scalex.maxCord = length1 + baseX;
+        originX = x2 = baseX;
+        scalex.origin = originX;
+        minimumX = scalex.minCord = baseX;
+        maximumX = scalex.maxCord = length1 + baseX;
 
         if (groupOn === true) {
             barSpacing = (length1 / ((groups + 0.5) * (count)));
@@ -790,12 +754,12 @@ function GraphObject(aCanvasName) {
             gfx.color(dataColors[dataFill[j]]);
             for (i = 0; i < length2; i++) {
                 y1 = scaley.origin - (data1[i] * scale2);
-                barHeight = y1 - Oy;
+                barHeight = y1 - originY;
                 if (barHeight < 0) {
-                    y2 = Oy + barHeight;
+                    y2 = originY + barHeight;
                     barHeight *= -1;
                 } else {
-                    y2 = Oy;
+                    y2 = originY;
                 }
                 gfx.fillRect(x1 + 1, y2, barWidth - 1, barHeight,true);
                 x1 += width;
@@ -821,9 +785,9 @@ function GraphObject(aCanvasName) {
 
         orientation = 'h'; //<---vertical bars
 
-        Ox = scaley.origin;
-        mx = scaley.minCord;
-        Mx = scaley.maxCord;
+        originX = scaley.origin;
+        minimumX = scaley.minCord;
+        maximumX = scaley.maxCord;
 
        // gridYOn = false;
       //  gridXOn = true;
@@ -835,12 +799,12 @@ function GraphObject(aCanvasName) {
 
         scalex.makeScale(xmax, xmin);
         scale2 = scalex.scale;
-        Ox = scaley.origin;
+        originX = scaley.origin;
 
-        Oy = y2 = baseY;
-        scaley.origin = Oy;
-        my = scaley.minCord = baseY;
-        My = scaley.maxCord = length1 + baseY;
+        originY = y2 = baseY;
+        scaley.origin = originY;
+        minimumY = scaley.minCord = baseY;
+        maximumY = scaley.maxCord = length1 + baseY;
 
         if (groupOn === true) {
             barSpacing = (length1 / ((groups + 0.5) * (count)));
@@ -863,20 +827,20 @@ function GraphObject(aCanvasName) {
             gfx.setFillColor(dataColors[dataFill[j]]);
             gfx.color(dataColors[dataFill[j]]);
             for (i = 0; i < length2; i++) {
-                x1 = Ox + (data1[i] * scale2);
-                barWidth = x1 - Ox;
+                x1 = originX + (data1[i] * scale2);
+                barWidth = x1 - originX;
                 if (barWidth < 0) {
-                    x2 = Ox + barWidth;
+                    x2 = originX + barWidth;
                     barWidth *= -1;
                 } else {
-                    x2 = Ox;
+                    x2 = originX;
                 }
                 gfx.fillRect(x2, y1 + 1, barWidth, barHeight - 1);
                 y1 += height;
             }
             y2 += barSpacing;
         }
-        Oy = My;
+        originY = maximumY;
         drawAxis(true, 'hb');
     }
 

@@ -405,38 +405,35 @@ var BrowserInfo =(function () {
 		}
 	}
 })();
+/**
+ http://www.codingforums.com/showthread.php?t=11799
+ */
+var findPosition =  {
+	getAbsPos : function(oId, tl) {
+		var o = ( typeof oId === 'String') ? document.getElementById(oId) : oId;
+		return (tl === 'top') ? getAbsPosTop(o) : getAbsPosLeft(o);
+	},
 
-var findPosition = (function() {
-	/**
-	 http://www.codingforums.com/showthread.php?t=11799
-	 */
-	return {
-		getAbsPos : function(oId, tl) {
-			var o = ( typeof oId === 'String') ? document.getElementById(oId) : oId;
-			return (tl === 'top') ? getAbsPosTop(o) : getAbsPosLeft(o);
-		},
-
-		getAbsPosTop : function(element) {
-			var obj = element, val = 0;
-			while (obj && obj.nodeName !== "body") {
-				val += parseInt((obj.offsetTop), 10);
-				obj = obj.parentNode;
-				break;
-			}
-			return val;
-		},
-
-		getAbsPosLeft : function(element) {
-			var obj = element, val = 0;
-			while (obj && obj.nodeName !== "body") {
-				val += parseInt((obj.offsetLeft), 10);
-				obj = obj.parentNode;
-				break;
-			}
-			return val;
+	getAbsPosTop : function(element) {
+		var obj = element, val = 0;
+		while (obj && obj.nodeName !== "body") {
+			val += parseInt((obj.offsetTop), 10);
+			obj = obj.parentNode;
+			break;
 		}
-	};
-})();
+		return val;
+	},
+
+	getAbsPosLeft : function(element) {
+		var obj = element, val = 0;
+		while (obj && obj.nodeName !== "body") {
+			val += parseInt((obj.offsetLeft), 10);
+			obj = obj.parentNode;
+			break;
+		}
+		return val;
+	}
+};
 
 /**
  * Print Object

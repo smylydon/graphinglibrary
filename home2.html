@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<meta charset="UTF-8" />
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+		<script type="text/javascript" src="js/painter.js"></script>
+		<link rel="stylesheet" href="./styles/style.css"/>
+		<title>MNS JavaScript Graph Library Drawing tests</title>
+	</head>
+	<body>
+
+		<div id="main">
+			<header>MNS JavaScript Graph Library SVG Drawing tests</header>
+			<section class="mainSection">
+                <div id="graph0" style="width:1000px;height:500px;display:block;"></div>
+			</section>
+		</div> 
+
+		<script type="text/javascript" >
+		(function($){
+			$(document).ready( function(){
+				var painter = PainterFactory.getPainter();
+				painter.init(4);
+				console.log('shape =',painter.circle({x:100,y:100, r:50, fill:true, color:'green'}));
+				painter.ellipse({x:100,y:100, r1:50, r2:60, fill:true, color:'red'})
+				console.log('queue:',painter.queue)
+		  	});
+		})(jQuery);
+		</script>
+	</body>
+</html>
+
