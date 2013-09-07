@@ -302,7 +302,7 @@ function GraphObject(aCanvasName) {
         //if (gridXOn === true) {
             length = gridX.length;
             for (var i = 0; i < length; i++) {
-                var deltaX = gridX[loopcount];
+                var deltaX = gridX[i];
                 gridGfx.line(deltaX, minimumY, deltaX, maximumY);
             }
        // }
