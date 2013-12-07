@@ -16,16 +16,15 @@ function GraphObject(aCanvasName) {
     var chordGFx = null;
     var gridGfx = null;
     var axesGfx = null;
-    var originX = 0; //x origin
-    var originY = 0; //y origin
-    var minimumX = 0; //minimum x
-    var minimumY = 0; //minimum y
-    var maximumX = 0; //max x
-    var maximumY = 0; //max y
+    var originX = 0;
+    var originY = 0; 
+    var minimumX = 0;
+    var minimumY = 0;
+    var maximumX = 0;
+    var maximumY = 0;
     var factor = Math.pow(10, 6); //used to correct javascript bug with small numbers
 
     var areaChart = false; //area chart true or false
-    var ThreeDee = false; //draw in 3d
     var plotPolyMode = false; //line or dot plot
 
     var chordSettings = [1, 5, false, false]; //chord/node style
@@ -42,8 +41,6 @@ function GraphObject(aCanvasName) {
     var orientation = 'v';
     var scalex = new scaleObject();
     var scaley = new scaleObject();
-    var titleObject = [];
-    var legendObject = [];
 
     scaley.noFlip = false;
     scalex.paddingAlpha = paddingXAlpha;
@@ -125,37 +122,34 @@ function GraphObject(aCanvasName) {
 
 
     this.setCustomAxis = function (custom, step, start, finish) {
-        step = Math.floor(step * factor);
-        start = Math.floor(start * factor);
-        finish = Math.floor(finish * factor);
+        if (custom==='x' || custom==='y') {
+            var scaler = (custom === 'x') ? scalex : scaley;
+            step = Math.floor(step * factor);
+            start = Math.floor(start * factor);
+            finish = Math.floor(finish * factor);
 
-        if (custom === 'x') {
-            scalex.customScale = true;
-            scalex.customStep = step;
-            scalex.customStart = start;
-            scalex.customEnd = finish;
-        }
-
-        if (custom === 'y') {
-            scaley.customScale = true;
-            scaley.customStep = step;
-            scaley.customStart = start;
-            scaley.customEnd = finish;
+            scaler.customScale = true;
+            scaler.customStep = step;
+            scaler.customStart = start;
+            scaler.customEnd = finish;
         }
         return (this);
     };
 
     this.disableCustomAxis = function (custom) {
-        custom = custom.toLowerCase;
-        if (custom === 'x') {
-            scalex.customScale = false;
-        }
-        if (custom === 'y') {
-            scaley.customScale = false;
-        }
-        if ((custom === 'xy') || (custom === 'yx') || (typeof custom === 'undefined')) {
-            scalex.customScale = false;
-            scaley.customScale = false;
+        switch(custom.toLowerCase()) {
+            case 'x':
+                scalex.customScale = false;
+                break;
+            case 'y':
+                scaley.customScale = false;
+                break;
+            case 'xy':
+            case 'yx':
+            case 'undefined':
+                scalex.customScale = false;
+                scaley.customScale = false;
+            break;
         }
         return (this);
     };
@@ -283,7 +277,6 @@ function GraphObject(aCanvasName) {
     };
 
     function drawGrid(shadows) {
-        var length;
 
         shadows = shadows || true;
         gridGfx.color(dataColors[gridColor]);
@@ -298,22 +291,18 @@ function GraphObject(aCanvasName) {
         gridGfx.line(minimumX, maximumY, maximumX, maximumY);
         gridGfx.line(maximumX, minimumY, maximumX, maximumY);
         
+        var length = gridX.length;
+        for (var i = 0; i < length; i++) {
+            var deltaX = gridX[i];
+            gridGfx.line(deltaX, minimumY, deltaX, maximumY);
+        }
 
-        //if (gridXOn === true) {
-            length = gridX.length;
-            for (var i = 0; i < length; i++) {
-                var deltaX = gridX[i];
-                gridGfx.line(deltaX, minimumY, deltaX, maximumY);
-            }
-       // }
+        length = gridY.length;
+        for (var j = 0; j < length; j++) {
+            var deltaY = gridY[j];
+            gridGfx.line(minimumX, deltaY, maximumX, deltaY);
+        }
 
-        //if (gridYOn === true) {
-            length = gridY.length;
-            for (var j = 0; j < length; j++) {
-                var deltaY = gridY[j];
-                gridGfx.line(minimumX, deltaY, maximumX, deltaY);
-            }
-        //}
         gridGfx.restore();
         if (shadows === true) {
             gridGfx.setShadows();
@@ -401,29 +390,35 @@ function GraphObject(aCanvasName) {
         drawGrid(gfx.getShadows());
     };
 
+    function calculateBarCoordiates(barSpacing, groups, axis) {
+        var gridCoordinates,origin;
+
+        if (axis.toLowerCase() == 'x') {
+            gridCoordinates = gridX;
+            origin = originX;
+        } else {
+            gridCoordinates = gridY;
+            origin = originY;
+        }
+
+        var base = origin + (barSpacing / 2);
+        for (var i = 0; i < groups; i++) {
+            gridCoordinates.push(base);
+            base = base + barSpacing;
+        }
+    };
+
     function yBarGridCoordinates(barSpacing, groups) {
         if (scaley.customScale === false) {
             yGridCoordinates();
-            var base = originX + (barSpacing / 2);
-            for (var i = 0; i < groups; i++) {
-                gridX.push(base);
-                //alert(base);
-                base = base + barSpacing;
-            }
+            calculateBarCoordiates(barSpacing,groups,'y');
         }
     };
     
     function xBarGridCoordinates(barSpacing, groups) {
-        
         if ((scalex.customScale === false) && (gridXOn === true)) {
             xGridCoordinates();
-
-            var base = originY + (barSpacing / 2);
-            for (var j = 0; j < groups; j++) {
-                gridY.push(base);
-                //alert(base);
-                base = base + barSpacing;
-            }
+            calculateBarCoordiates(barSpacing,groups,'x');
         }
     };
 
@@ -549,7 +544,6 @@ function GraphObject(aCanvasName) {
         }
     };
 
-
     function drawYAxisCallbackFactory(condition) {
         var originXminusTen = originX-10,
             halfFontHeight = gfx.getFontSize() / 2;
@@ -643,36 +637,34 @@ function GraphObject(aCanvasName) {
             drawYAxis();
             drawXAxis();
         }
-    }
+    };
 
 ///////////////////////////////////////////////////////////////////////////////
     function showChords(points) {
-        var x = 0, y = 0, i = 0, radius = chordSettings[1];
-        var type = chordSettings[0], color = gfx.getColor();
-        var filler = 5;
-        var length = points.length - (points.length % 2);
+        var radius = chordSettings[1],
+            length = points.length - (points.length % 2);
 
         chordGFx.save();
-        chordGFx.color(color);
+        chordGFx.color(gfx.getColor());
 
         var circlePoint = function(callback){
-            for (i = 0; i < length; i = i + 2) {
-                x = points[i];
-                y = points[i + 1];
+            for (var i = 0; i < length; i = i + 2) {
+                var x = points[i];
+                var y = points[i + 1];
                 callback(x, y, radius);
             }
         };
 
         var rectPoint = function(callback){
             var radius2 = radius + radius;
-            for (i = 0; i < length; i = i + 2) {
-                x = points[i] - radius;
-                y = points[i + 1] - radius;
+            for (var i = 0; i < length; i = i + 2) {
+                var x = points[i] - radius;
+                var y = points[i + 1] - radius;
                 callback(x, y, radius2, radius2);
             }
         }
-
-        switch (type) {
+        var filler = 5;
+        switch (chordSettings[0]) {
             case 1:
                 circlePoint(chordGFx.circle);
                 break;
@@ -710,7 +702,6 @@ function GraphObject(aCanvasName) {
         var ymax = dataYaxis.mgGetMax2D(); //heighest point
         var ymin = dataYaxis.mgGetMin2D(); //lowest point
         var x1, x2, y1 = 0, y2 = 0;
-        var i, j;
         var data1;
         var groupOn = parameters[1];
 
@@ -726,7 +717,6 @@ function GraphObject(aCanvasName) {
         length1 = gfx.getWidth();
         baseX = (length1 * paddingXAlpha);
         length1 = (length1 * (paddingXBeta - paddingXAlpha));
-
 
         scaley.makeScale(ymax, ymin);
         scale2 = scaley.scale;
@@ -751,15 +741,14 @@ function GraphObject(aCanvasName) {
 
         drawBarGrid(width, count);
 
-
-        for (j = 0; j < groups; j++) {
+        for (var j = 0; j < groups; j++) {
             data1 = dataYaxis[j];
             length2 = data1.length;
             x1 = x2;
 
             gfx.setFillColor(dataColors[dataFill[j]]);
             gfx.color(dataColors[dataFill[j]]);
-            for (i = 0; i < length2; i++) {
+            for (var i = 0; i < length2; i++) {
                 y1 = scaley.origin - (data1[i] * scale2);
                 barHeight = y1 - originY;
                 if (barHeight < 0) {
@@ -783,8 +772,6 @@ function GraphObject(aCanvasName) {
         var groups = dataYaxis.length;
         var count = dataYaxis.mgGetMaxElements();
         var dataBars = [];
-        var xmax = dataYaxis.mgGetMax2D();
-        var xmin = dataYaxis.mgGetMin2D();
         var y1, y2, x1 = 0, x2 = 0;
         var i, j;
         var data1;
@@ -796,15 +783,13 @@ function GraphObject(aCanvasName) {
         minimumX = scaley.minCord;
         maximumX = scaley.maxCord;
 
-       // gridYOn = false;
-      //  gridXOn = true;
         gfx.clearShadows();
 
         length1 = gfx.getHeight();
         baseY = (length1 * paddingXAlpha);
         length1 = (length1 * (paddingXBeta - paddingXAlpha));
 
-        scalex.makeScale(xmax, xmin);
+        scalex.makeScale(dataYaxis.mgGetMax2D(), dataYaxis.mgGetMin2D());
         scale2 = scalex.scale;
         originX = scaley.origin;
 
@@ -823,7 +808,6 @@ function GraphObject(aCanvasName) {
         }
 
         barHeight = barSpacing - 2;
-
 
         drawBarGrid(height, count);
 
@@ -851,39 +835,36 @@ function GraphObject(aCanvasName) {
         drawAxis(true, 'hb');
     }
 
-    function lineGraph(plotPolyMode, areaMode) {
-        var length = 0, length2 = 0, length3 = 0;
-        var xmax = dataXaxis.mgGetMax2D();
-        var xmin = dataXaxis.mgGetMin2D();
-        var ymax = dataYaxis.mgGetMax2D();
-        var ymin = dataYaxis.mgGetMin2D();
-        var scale1 = 0, scale2 = 0;
-        var dataLine = [], dataPoly = [];
-        var data1 = [], data2 = [];
-        var x = 0, y = 0, i = 0, j = 0, color = 0;
+    function finishDrawingLine(i,dataLines,dataPoly) {
+        gfx.setShadowColor('#000000');
+        gfx.setAlpha(0.35);
+        gfx.setLineWidth(1);
+        gfx.clearShadows();
+        gfx.setFillColor(dataColors[dataFill[i]]);
+        gfx.fillPoly(dataPoly);
+        gfx.setShadows();
+        gfx.setLineWidth(1);
+        gfx.setAlpha(1.00);
+        gfx.color(dataColors[dataLines[i]]); 
+    };
 
+    function lineGraph(plotPolyMode, areaMode) {
         plotPolyMode = plotPolyMode || false;
         areaMode = areaMode || false;
 
-        length2 = dataXaxis.length;
+        scaley.makeScale(dataYaxis.mgGetMax2D(), dataYaxis.mgGetMin2D());
+        scalex.makeScale(dataXaxis.mgGetMax2D(), dataXaxis.mgGetMin2D());
 
-        scaley.makeScale(ymax, ymin);
-        scale2 = scaley.scale;
+        drawLinePlotGrid(); 
 
-        scalex.makeScale(xmax, xmin);
-        scale1 = scalex.scale;
+        for (var i = 0, length = dataXaxis.length; i < length; i++) {
+            var x = 0, y = 0;
+            var dataLine = [], dataPoly = [];
+            var data1 = dataXaxis[i], data2 = dataYaxis[i];
 
-        drawLinePlotGrid(); /*Draw grid and make calculations */
-
-        for (j = 0; j < length2; j++) {
-            data1 = dataXaxis[j];
-            data2 = dataYaxis[j];
-
-            length = data1.length;
-
-            for (i = 0; i < length; i++) {
-                x = scalex.origin + (data1[i] * scale1);
-                y = scaley.origin - (data2[i] * scale2);
+            for (var j = 0, length2 = data1.length; j < length2; j++) {
+                x = scalex.origin + (data1[j] * scalex.scale);
+                y = scaley.origin - (data2[j] * scaley.scale);
                 dataLine.push(x);
                 dataLine.push(y);
                 if (areaMode) {
@@ -897,33 +878,12 @@ function GraphObject(aCanvasName) {
             dataPoly.push(dataPoly[0]);
             dataPoly.push(scaley.origin);
             gfx.save();
-            gfx.setShadowColor('#000000');
-            gfx.setAlpha(0.35);
-            gfx.setLineWidth(1);
-            gfx.clearShadows();
-            gfx.setFillColor(dataColors[dataFill[j]]);
-            gfx.fillPoly(dataPoly);
-            gfx.setShadows();
-            gfx.setLineWidth(1);
-            gfx.setAlpha(1.00);
-            color = dataColors[dataLines[j]];
-
-            //plotPolyMode=true;
-            if (plotPolyMode) {
-                gfx.color(color);
-                gfx.polyLine(dataLine);
-            } else {
-                gfx.color(color);
-                gfx.plotArray(dataLine);
-            }
-
+            finishDrawingLine(i,dataLines,dataPoly);
+            plotPolyMode ? gfx.polyLine(dataLine) : gfx.plotArray(dataLine);
             showChords(dataLine);
-
             gfx.restore();
-            dataLine = [];
-            dataPoly = [];
         }
-    }
+    };
 
     function pieChart(cx, cy, type) {
         var length = data.length;

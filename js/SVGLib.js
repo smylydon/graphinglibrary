@@ -356,12 +356,7 @@ function SVGObject() {
         aShape = document.createElementNS("http://www.w3.org/2000/svg", shape);
         var s="fill:"+fill+";stroke:"+pen+";opacity:"+globalAlpha+";stroke-width"+lineDrawWidth;
         aShape.setAttribute('style',s);
-        /*
-        aShape.setAttribute("fill", fill);
-        aShape.setAttribute("stroke", pen);
-        aShape.setAttribute("opacity", globalAlpha);
-        aShape.setAttribute("stroke-width", lineDrawWidth);
-        */
+
         canvas.appendChild(aShape);
         return aShape;
     }
@@ -372,11 +367,7 @@ function SVGObject() {
 
         aShape = document.createElementNS("http://www.w3.org/2000/svg", shape);
         aShape.setAttribute('style',s);
-        /*
-        aShape.setAttribute("fill", fill);
-        aShape.setAttribute("stroke", shadowColor);
-        aShape.setAttribute("opacity", shadowAlpha);
-        aShape.setAttribute("stroke-width", shadowWidth);*/
+
         canvas.appendChild(aShape);
         return aShape;
     }

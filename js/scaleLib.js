@@ -37,38 +37,17 @@ function scaleObject(){
 		return Math.log(x)*Math.LOG10E;
 	}
 
-	/**
-	*	Works out a base 10 scale tick width e.g. 10,20 or 300,400,...900
-	*
-	*	@private
-	*/		
-	function calculateScale(max,min){
-		var p1=0, p2=0, p3=0, p4=0, p5=0;
-		var s1=0, s2=0, s3=0, s4=0;
-		var length=0, scaler=0;
-		
-		//start at origin
-		if(min>0){
-			min=0;
-		}
-		//end at origin
-		if(max<0){
-			max=0;
-		}
-		
-		length=max-min;
-		p1=log(length);					/*absolute length */
-		p2=Math.floor(p1);				/*magnitude as a power of 10*/
-		p3=Math.pow(10,p2);				/*magnitude as a value*/
-		p4=Math.floor(length/p3);		/*length over magnitude*/
-		p5=p4*Math.pow(10,p2);			/*approx length*/
+	function calculateApproxLength(range) {
+		var lengthAsPowerOfTen=log(range),
+		floorLengthAsPowerOfTen=Math.floor(lengthAsPowerOfTen),				/*magnitude as a power of 10*/
+		approxLength=Math.pow(10,floorLengthAsPowerOfTen),				/*magnitude as a value*/
+		p4=Math.floor(range/approxLength);		/*length over magnitude*/
 
-		s1=p5/10;							/*scale*/				
-		s2=log(s1);							/*power of scale*/
-		s3=Math.floor(s2);				/*magitude of scale*/
-		
-		s4=s1/Math.pow(10,s3);			/*scale/magnitude*/
-		
+		return p4*Math.pow(10,floorLengthAsPowerOfTen);			/*approx length*/
+	}
+
+	function calculateTickDelta(approxLength,magnitudeOfLength) {
+		var tickDelta = approxLength/magnitudeOfLength;
 		/* Iron-out scale             */
 		/* a. tick width = 5.0*10^mag */
 		/* b. tick width = 4.0*10^mag */
@@ -76,25 +55,41 @@ function scaleObject(){
 		/* d. tick width = 2.0*10^mag */
 		/* e. tick width = 1.0*10^mag */
 		
-		if(s4>=5){
-			scaler=5*Math.pow(10,s3);
-		}else{
-			if(s4>=3.5){
-				/* tick width = 4*10^mag */
-				scaler=4*Math.pow(10,s3);
-			}else{
-				if(s4>=2.5){
-					scaler=2.5*Math.pow(10,s3);
-				}else{
-					if(s4>=2.0){
-						scaler=2*Math.pow(10,s3);
-					}else{
-						scaler=Math.pow(10,s3);
-					}
-				}
-			}
-		}			
-		return scaler;
+		if(tickDelta>=5){
+			return 5*magnitudeOfLength;
+		}
+		if(tickDelta>=3.5){
+			/* tick width = 4*10^mag */
+			return 4*magnitudeOfLength;
+		}
+		if(tickDelta>=2.5){
+			return 2.5*magnitudeOfLength;
+		}
+		if(tickDelta>=2.0){
+			return 2*magnitudeOfLength;
+		}
+
+		return magnitudeOfLength;
+	}
+	
+	/**
+	*	Works out a base 10 scale tick width e.g. 10,20 or 300,400,...900
+	*
+	*	@private
+	*/		
+	function calculateScale(max,min){
+		
+		//start at origin
+		min = min > 0 ? 0 : min;
+		//end at origin
+		max = max < 0 ? 0 : max;
+		
+		var approxLength = calculateApproxLength(max-min)/10,								
+			logOfLength = log(approxLength),			
+			roundLogOfLength = Math.floor(logOfLength),
+			magnitudeOfLength = Math.pow(10,roundLogOfLength);
+
+		return calculateTickDelta(approxLength, magnitudeOfLength);
 	}
 	
 	/*
@@ -110,39 +105,34 @@ function scaleObject(){
 		
 		scaler=calculateScale(max,min); /*get delta (the tick width)*/
 
-		if(min>=0){
-			count=0;
-			value=scaler;
+		if (min >= 0) {
+			value = scaler;
 			/*work out total number of divisions (ticks)*/			
-			while(notDone){
-				if(value<max){
+			while(notDone) {
+				notDone = value < max;
+				if (notDone) {
 					value+=scaler;
-				}else{
-					notDone=false;
 				}
 				count++;
 			}
 		}else{
-			count=0;
 			value=0;
 			/*find first even number<=minimum value*/
-			while(notDone){
-				if(value>min){
+			while(notDone) {
+				notDone = value > min;
+				if (notDone) {
 					value=value-scaler;
-				}else{
-					notDone=false;
 				}
 			}
 			
 			scalemin=value;
 			notDone=true;
 			/*start at evened minimum and count to maximum to find ticks*/
-			while(notDone){
-				if(value<max){
+			while(notDone) {
+				notDone = value < max;
+				if (notDone) {
 					value+=scaler;
 					count++;
-				}else{
-					notDone=false;
 				}
 			}
 		}
@@ -160,9 +150,9 @@ function scaleObject(){
 		this.scale=this.axisLength/(this.scaleMax-this.scaleMin);
 		
 		/*decide which side the axis is on, used for Y axis*/
-		if(this.noFlip){
+		if (this.noFlip) {
 			this.origin=this.minCord+((0-this.scaleMin)*this.scale);
-		}else{
+		} else {
 			this.origin=this.maxCord-((0-this.scaleMin)*this.scale);
 		}
 	};	
