@@ -100,10 +100,10 @@ function scaleObject(){
 	*	@param {number} min it the smallest coordinate
 	*/			
 	this.makeScale=function(max,min){
-		var scaler=0, scalemin=0, notDone=true;
+		var scalemin=0, notDone=true;
 		var count=0, length=0,value=0;
 		
-		scaler=calculateScale(max,min); /*get delta (the tick width)*/
+		var scaler=calculateScale(max,min); /*get delta (the tick width)*/
 
 		if (min >= 0) {
 			value = scaler;

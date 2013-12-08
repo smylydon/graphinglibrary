@@ -925,16 +925,15 @@ function CanvasObject() {
 	 *	@param {Array} points is an array of x and y coordinates
 	 */
 	this.plotArray = function(points) {
-		var x = 0,y = 0, oldx = 0, oldy = 0, i = 0;
 		var length = points.length - (points.length % 2);
 		
 		ctx.save();
 		ctx.fillStyle = ctx.strokeStyle;
 		if (length >= 2) {
 			var shape = function(dx, dy) {
-				for ( i = 0; i < length; i = i + 2) {
-					x = points[i];
-					y = points[i + 1];
+				for (var i = 0; i < length; i = i + 2) {
+					var x = points[i];
+					var y = points[i + 1];
 					ctx.fillRect(x + dx, y + dy, lineDrawWidth, lineDrawWidth);
 				}
 			}
@@ -987,14 +986,14 @@ function CanvasObject() {
 	 *	@param {Intger} the a1 start angle
 	 *	@param {Intger} the a2 end angle
 	 */
-	this.arc = function(x, y, radius, a1, a2) {
+	this.arc = function(x, y, radius, startAngle, endAngle) {
 		if (mode === 'degree') {
-			a1 = PI180 * a1;
-			a2 = PI180 * a2;
+			startAngle *= PI180;
+			endAngle *= PI180;
 		}
 		var shape = function(dx, dy) {
 			ctx.beginPath();
-			ctx.arc(x + dx, y + dy, radius, a1, a2, direction);
+			ctx.arc(x + dx, y + dy, radius, startAngle, endAngle, direction);
 			ctx.stroke();
 		};
 		shadowWithStroke(function() {
@@ -1099,7 +1098,49 @@ function CanvasObject() {
 		ctx.arc(x, y, radius, 0, PI2, true);
 		ctx.closePath();
 		ctx.fill();
-	}
+	};
+
+	function drawEllipse(object) {
+		var r1 = setter.r1, r2 = setter.r2;
+		var x = setter.x, y = setter.y;
+
+		if (arguments.length >= 4) {
+			var radius = 0, sx = 0, sy = 0;
+			if (r1 > r2) {
+				sx = r1 / r2;
+				sy = 1;
+				radius = r2;
+			} else {
+				sx = 1;
+				sy = r2 / r1;
+				radius = r1;
+			}
+
+			var ellipse = function(config) {
+				ctx.save();
+				ctx.translate(x + config.dx, y + config.dy);
+				ctx.scale(sx, sy);
+				ctx.beginPath();
+				ctx.arc(0, 0, radius, 0, PI2, true);
+				ctx.closePath();
+				if (config.fill) ctx.fill();
+				if (config.stroke) ctx.stroke();
+				ctx.restore();
+			};
+			if (fill) {
+				shadowWithFill(function() {
+					shape({ dx:shadowX, dy:shadowY, stroke:false, fill:true});
+				});
+				shape({ dx:0, dy:0, stroke:true, fill:true});	
+			} else {
+				shadowWithStroke(function() {
+					shape({ dx:shadowX, dy:shadowY, stroke:true, fill:false});
+				});
+				shape({ dx:0, dy:0, stroke:true, fill:false});
+			}
+		}
+
+	};
 
 	/**
 	 *	Draws an ellipse on the canvas. The horizontal and vertical
@@ -1114,7 +1155,7 @@ function CanvasObject() {
 		var radius = 0, sx = 0, sy = 0;
 
 		if (arguments.length >= 4) {
-
+			var radius = 0, sx = 0, sy = 0;
 			if (r1 > r2) {
 				sx = r1 / r2;
 				sy = 1;
@@ -1135,10 +1176,7 @@ function CanvasObject() {
 				ctx.stroke();
 				ctx.restore();
 			};
-			shadowWithStroke(function() {
-				shape(shadowX, shadowY);
-			});
-			shape(0, 0);
+
 		}
 		return this;
 	};
@@ -1167,23 +1205,31 @@ function CanvasObject() {
 			}
 
 			var shape = function(dx, dy) {
+				ctx.save();
 				ctx.translate(x + dx, y + dy);
 				ctx.scale(sx, sy);
 				ctx.beginPath();
 				ctx.arc(0, 0, radius, 0, PI2, true);
 				ctx.closePath();
+				ctx.stroke();
+				ctx.restore();
+			};
+			var shape = function(dx, dy, stroke) {
+				ctx.save();
+				ctx.translate(x + dx, y + dy);
+				ctx.scale(sx, sy);
+				ctx.beginPath();
+				ctx.arc(0, 0, radius, 0, PI2, true);
+				ctx.closePath();
+				if (fill) ctx.fill();
+				if (stroke) ctx.stroke();
+				ctx.restore();
 			};
 			shadowWithFill(function() {
-				ctx.save();
-				shape(shadowX, shadowY);
-				ctx.fill();
-				ctx.restore();
+				shape({ dx:shadowX, dy:shadowY, stroke:false, fill:true});
 			});
-			ctx.save();
-			shape(0, 0);
-			ctx.fill();
-			ctx.stroke();
-			ctx.restore();
+
+			shape({ dx:0, dy:0, stroke:true, fill:true});
 		}
 		return this;
 	};
@@ -1216,15 +1262,14 @@ function CanvasObject() {
 	}
 
 	this.polyLine = function(points) {
-		var x = 0, y = 0, oldx = 0, oldy = 0, i = 0;
 		var length = points.length - (points.length % 2);
 
-		var linus = function(sx, sy) {
-			oldx = points[0] + sx;
-			oldy = points[1] + sy;
-			for ( i = 2; i < length; i = i + 2) {
-				x = points[i] + sx;
-				y = points[i + 1] + sy;
+		var drawLine = function(dx, dy) {
+			var oldx = points[0] + sx;
+			var oldy = points[1] + sy;
+			for (var  i = 2; i < length; i = i + 2) {
+				var x = points[i] + dx;
+				var y = points[i + 1] + dy;
 				polyLineMakePath(x, y, oldx, oldy);
 				oldx = x;
 				oldy = y;
@@ -1232,64 +1277,52 @@ function CanvasObject() {
 		};
 
 		shadowWithStroke(function() {
-			linus(shadowX, shadowY, 5);
+			drawLine(shadowX, shadowY, 5);
 		});
-		linus(0, 0);
+		drawLine(0, 0);
 		return this;
 	};
 
-	this.polygon = function(points) {
-		var x = 0, y = 0, i = 0;
+	function drawPolygon(points,fillPolygon) {
 		var length = points.length - (points.length % 2);
-		
-		var shape = function(dx, dy) {
-			x = points[0];
-			y = points[1];
 
+		fillPolygon = ( length > 3 ) && ( fillPolygon || false );
+
+		var polygon = function(dx, dy) {
+			var x = points[0];
+			var y = points[1];
 			ctx.save();
 			ctx.beginPath();
 			ctx.moveTo(x, y);
-			for ( i = 2; i < length; i = i + 2) {
+			for (var i = 2; i < length; i = i + 2) {
 				x = points[i];
 				y = points[i + 1];
 				ctx.lineTo(x + dx, y + dy);
 			}
 			ctx.closePath();
+			if (fillPolygon) ctx.fill();
 			ctx.stroke();
 			ctx.restore();
 		};
-		shadowWithStroke(function() {
-			shape(shadowX, shadowY);
-		});
-		shape(0, 0);
+		if (fillPolygon) {
+			shadowWithFill(function() {
+				polygon(shadowX, shadowY);
+			});
+		} else {
+			shadowWithStroke(function() {
+				polygon(shadowX, shadowY);
+			});	
+		}
+		polygon(0, 0);
+	};
+
+	this.polygon = function(points) {
+		drawPolygon(points);
 		return this;
 	};
 
 	this.fillPoly = function(points) {
-		var stroke = false, x = 0, y = 0, i = 0;
-		var length = points.length - (points.length % 2);
-		
-		if (length > 3) {
-			var shape = function(dx, dy) {
-				x = points[0];
-				y = points[1];
-				ctx.beginPath();
-				ctx.moveTo(x, y);
-				for ( i = 2; i < length; i = i + 2) {
-					x = points[i];
-					y = points[i + 1];
-					ctx.lineTo(x + dx, y + dy);
-				}
-				ctx.closePath();
-				ctx.fill();
-				ctx.stroke();
-				ctx.restore();
-			};
-			shadowWithFill(function() {
-				shape(shadowX, shadowY);
-			});
-			shape(0, 0);
-		}
+		drawPolygon(points,true);
 		return this;
 	};
 }
