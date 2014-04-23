@@ -80,6 +80,7 @@ function SVGObject() {
             p = new PrintObject(canvasholder, canvas, fontSize);
         }
     };
+
     this.hide = function(){
         canvas.style.visibility = 'hidden';
     };
@@ -239,7 +240,6 @@ function SVGObject() {
     };
 
     this.plot = function (x, y, color) {
-        //alert('no plot');
         this.fillRect(x, y, lineDrawWidth, lineDrawWidth);
         return this;
     };
@@ -262,19 +262,22 @@ function SVGObject() {
     };
 
     this.line = function (x1, y1, x2, y2, color) {
-        var aline = null;
+        var attributes = { x1:x1, y1:y1, x2:x2, y2:y2, color:color };
+        var setter = { name:'line', styles:{ fill:'none' } , attributes:attributes};
+
         if (shadows === true) {
-            aline = makeAShadow('line', 'none');
-            aline.setAttribute('x1', x1 + shadowX);
-            aline.setAttribute('y1', y1 + shadowY);
-            aline.setAttribute('x2', x2 + shadowX);
-            aline.setAttribute('y2', y2 + shadowY);
+            var attributes2 = {
+                x1: x1 + shadowX,
+                y1: y1 + shadowY,
+                x2: x2 + shadowX,
+                y2: y2 + shadowY
+            },
+            setter2 = MNS.extend(setter,{});
+
+            setter2.attributes = attributes2;
+            makeAShadow(setter2);
         }
-        aline = makeAShape('line', 'none');
-        aline.setAttribute('x1', x1);
-        aline.setAttribute('y1', y1);
-        aline.setAttribute('x2', x2);
-        aline.setAttribute('y2', y2);
+        makeAShape(setter);
         return this;
     };
 
@@ -340,52 +343,67 @@ function SVGObject() {
         return this;
     };
 
-    function makeAnimation(attributeName,from,to,shape) {
-        var anim = null;
-        anim = document.createElementNS("http://www.w3.org/2000/svg", 'animate');
-        anim.setAttribute('dur','1400ms');
-        anim.setAttribute('from',from);
-        anim.setAttribute('to',to);
-        anim.setAttribute('attributeName',attributeName);
-        anim.setAttribute('fill','freeze');
-        shape.appendChild(anim);
-    }
+    function setAttributes(object,attributes) {
+        for(var property in attributes) {
+            object.setAttribute(property,attributes[property])
+        }
+    };
 
-    function makeAShape(shape, fill) {
-        var aShape = null;
-        aShape = document.createElementNS("http://www.w3.org/2000/svg", shape);
-        var s="fill:"+fill+";stroke:"+pen+";opacity:"+globalAlpha+";stroke-width"+lineDrawWidth;
-        aShape.setAttribute('style',s);
+    function makeAnimation(attributes) {
+        var anim = document.createElementNS("http://www.w3.org/2000/svg", 'animate');
+        attributes.dur = '1000ms';
+        attributes.fill = 'freeze';
+        setAttributes(anim,attributes);
+        attributes.shape.appendChild(anim);
+    };
 
+    function getDefaultStyles(object) {
+        var styles = { fill:'none', stroke: pen, opacity:globalAlpha, 'stroke-width':lineDrawWidth};
+        return MNS.extend(styles,object);
+    };
+
+    function getShadowStyles(object) {
+        var styles = getDefaultStyles({ stroke:shadowColor, opacity:shadowAlpha});
+        return MNS.extend(styles,object);
+    };
+
+    function makeAShape(shape) {
+        var shadow = shape.shadow || false,
+            aShape = document.createElementNS("http://www.w3.org/2000/svg", shape.name),
+            style = '',
+            styles = !shadow ?  getDefaultStyles(shape.styles):
+                                getShadowStyles(shape.styles);
+        for(var property in styles) {
+            style += property+':'+styles[property]+';';
+        }
+        aShape.setAttribute('style',style);
+        setAttributes(aShape,shape.attributes);
         canvas.appendChild(aShape);
         return aShape;
     }
 
-    function makeAShadow(shape, fill) {
-        var aShape = null;
-        var s="fill:"+fill+";stroke:"+shadowColor+";opacity:"+shadowAlpha+";stroke-width"+lineDrawWidth;
-
-        aShape = document.createElementNS("http://www.w3.org/2000/svg", shape);
-        aShape.setAttribute('style',s);
-
-        canvas.appendChild(aShape);
-        return aShape;
+    function makeAShadow(shape) {
+        shape.shadow = true;
+        var object = makeAShape(shape);
+        shape.shadow = false;
+        return object;
     }
 
     function circles(cx, cy, radius, fill) {
-        var aCircle = null, aCircleStyle = null;
+        var attributes = { cx:cx , cy: cy , r:radius};
+        var setter = { name:'circle', styles:{ fill:fill } , attributes:attributes};
 
         if (shadows === true) {
-            aCircle = makeAShadow('circle', fill);
-            aCircle.setAttribute('cx', cx + shadowX);
-            aCircle.setAttribute('cy', cy + shadowY);
-            aCircle.setAttribute('r', radius);
+            var attributes2 = MNS.extend(attributes, {
+                cx: cx + shadowX,
+                cy: cy + shadowY
+            });
+            var setter2 = MNS.extend(setter,{ });
+            setter2.attributes = attributes2;
+            makeAShadow(setter2);
         }
 
-        aCircle = makeAShape('circle', fill);
-        aCircle.setAttribute('cx', cx);
-        aCircle.setAttribute('cy', cy);
-        aCircle.setAttribute('r', radius);
+        makeAShape(setter);
     }
 
     this.circle = function (x, y, radius) {
@@ -399,19 +417,19 @@ function SVGObject() {
     };
 
     function ellipses(cx, cy, rx, ry, fill) {
-        var anEllipse = null;
+        var attributes = { cx:cx , cy: cy, rx:rx, ry:ry };
+        var setter = { name:'ellipse', styles:{ fill:fill } , attributes:attributes};
+
         if (shadows === true) {
-            anEllipse = makeAShadow('ellipse', fill);
-            anEllipse.setAttribute('cx', cx + shadowX);
-            anEllipse.setAttribute('cy', cy + shadowY);
-            anEllipse.setAttribute('rx', rx);
-            anEllipse.setAttribute('ry', ry);
+            var attributes2 = MNS.extend(attributes, {
+                cx: cx + shadowX,
+                cy: cy + shadowY
+            });
+            var setter2 = MNS.extend(setter,{ });
+            setter2.attributes = attributes2;
+            makeAShadow(setter2);
         }
-        anEllipse = makeAShape('ellipse', fill);
-        anEllipse.setAttribute('cx', cx);
-        anEllipse.setAttribute('cy', cy);
-        anEllipse.setAttribute('rx', rx);
-        anEllipse.setAttribute('ry', ry);
+        makeAShape(setter);
     }
 
     this.ellipse = function (x, y, r1, r2) {
@@ -425,28 +443,26 @@ function SVGObject() {
     };
 
     function rectangle(x, y, aWidth, aHeight, fill, animate) {
-        var aRect = null;
-        var aRect2 = null;
-
-        var interval = null;
-
-        animate = animate || false;
+        var attributes = { x:x, y:y, width:aWidth, height:aHeight, fill:fill };
+        var setter = { name:'rect', styles:{ fill:fill } , attributes:attributes};
 
         if (shadows === true) {
-            aRect2 = makeAShadow('rect', fill);
-            aRect2.setAttribute('x', x + shadowX);
-            aRect2.setAttribute('y', y + shadowY);
-            aRect2.setAttribute('width', aWidth);
-            aRect2.setAttribute('height', aHeight);
+            var attributes2 = MNS.extend(attributes, {
+                x: x + shadowX,
+                y: y + shadowY
+            });
+            var setter2 = MNS.extend(setter,{ });
+            setter2.attributes = attributes2;
+            makeAShadow(setter2);
         }
-        aRect = makeAShape('rect', fill);
-        aRect.setAttribute('x', x);
-        aRect.setAttribute('width', aWidth);
+        var aRect = makeAShape(setter);
+
         if(animate && aHeight>=1){
             aRect.setAttribute('y', y+aHeight-1);
             aRect.setAttribute('height', 1);
-            makeAnimation('y',y+aHeight-1,y,aRect);
-            makeAnimation('height',1,aHeight,aRect);
+            //makeAnimation(attributeName,from,to,shape)
+            makeAnimation({attributeName:'y', from:y+aHeight-1, to:y, shape:aRect});
+            makeAnimation({attributeName:'height', from:1, to:aHeight, shape:aRect});
         }else{
             aRect.setAttribute('y', y);
             aRect.setAttribute('height', aHeight);
@@ -464,20 +480,24 @@ function SVGObject() {
     };
 
     function polygons(name, points, fill) {
-        var aPoly = null, mypoints1 = '', mypoints2 = '';
-        var x = 0, y = 0, i=0, length = points.length ;
-        for (i = 0; i < length; i += 2) {
-            x = points[i];
-            y = points[i + 1];
+        var mypoints1 = '', mypoints2 = '';
+        for (var i = 0, length=points.length; i < length; i += 2) {
+            var x = points[i],
+                y = points[i + 1];
             mypoints1 += (x + ',' + y + ' ');
             mypoints2 += (x + shadowX) + ',' + (y + shadowY) + ' ';
         }
+        var setter = { name:name, styles:{ fill:fill } , attributes:{ points:mypoints1 }};
+
         if (shadows === true) {
-            aPoly = makeAShadow(name, fill);
-            aPoly.setAttribute('points', mypoints2);
+            var attributes2 ={
+                points:mypoints2
+            };
+            var setter2 = MNS.extend(setter,{ });
+            setter2.attributes = attributes2;
+            makeAShadow(setter);
         }
-        aPoly = makeAShape(name, fill);
-        aPoly.setAttribute('points', mypoints1);
+        makeAShape(setter);
         return this;
     }
 

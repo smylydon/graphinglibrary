@@ -39,8 +39,8 @@ function GraphObject(aCanvasName) {
     var paddingYAlpha = 0.03;
     var paddingYBeta = 0.97;
     var orientation = 'v';
-    var scalex = new scaleObject();
-    var scaley = new scaleObject();
+    var scalex = new ScaleObject();
+    var scaley = new ScaleObject();
 
     scaley.noFlip = false;
     scalex.paddingAlpha = paddingXAlpha;

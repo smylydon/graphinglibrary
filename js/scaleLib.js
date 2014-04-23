@@ -4,7 +4,7 @@
 *
 *	@constructor
 */
-function scaleObject(){
+function ScaleObject(){
 	this.axisLength=0;		//axis length
 	this.fullLength=0;		//total length
 	this.scale=0;				//calculated scale
